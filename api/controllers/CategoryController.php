@@ -21,12 +21,12 @@
   }
   
   function getCategories () {
+
     $queryString = $_SERVER['QUERY_STRING'];
 
     parse_str(html_entity_decode($queryString), $vars);
 
     $id = isset($vars['id']) ? $vars['id'] : '';
-
     $category = new Category();
 
     $result = $id ? $category->read_single($id): $category->read();
@@ -38,29 +38,28 @@
       $cat_arr = array();
 
       while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-      extract($row);
+        extract($row);
 
-      $cat_item = array(
-          'id' => $id,
-          'category' => $category
-      );
+        $cat_item = array(
+            'id' => $id,
+            'category' => $category
+        );
 
-      array_push($cat_arr, $cat_item);
+        array_push($cat_arr, $cat_item);
       }
 
       echo json_encode($cat_arr);
 
     } else {
-      echo json_encode(
-      array('message' => 'No Categories Found')
-      );
+
+      echo json_encode(array('message' => 'No Categories Found'));
     }
   }
 
   function createCategory() {
+
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $categoryName = $requestBody['category'];
-
     $category = new Category();
     $category->name = $categoryName;
     
@@ -70,12 +69,15 @@
   }
 
   function updateCategory() {
+
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $categoryName = $requestBody['category'];
     $categoryId = $requestBody['id'];
 
     if (is_null($categoryName) || is_null($categoryId)) {
+
       http_response_code(400);
+
       return 'ID and Category fields are required to make an update.'; 
     }
 
@@ -89,12 +91,12 @@
   }
 
   function deleteCategory() {
+
     $queryString = $_SERVER['QUERY_STRING'];
 
     parse_str(html_entity_decode($queryString), $vars);
 
     $id = isset($vars['id']) ? $vars['id'] : '';
-
     $category = new Category();
 
     $result = $category->delete($id);

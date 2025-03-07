@@ -12,12 +12,7 @@
     }
 
     public function read() {
-      $query = 'SELECT
-        id,
-        category
-      FROM
-        ' . $this->table . '
-      ORDER BY id';
+      $query = 'SELECT id, category FROM ' . $this->table . ' ORDER BY id';
 
       $stmt = $this->conn->prepare($query);
 
@@ -28,12 +23,7 @@
 
   public function read_single($id) {
 
-    $query = 'SELECT
-        id,
-        category
-      FROM
-        ' . $this->table . '
-      WHERE id = ?';
+    $query = 'SELECT id, category FROM ' . $this->table . ' WHERE id = ?';
 
     $stmt = $this->conn->prepare($query);
 
@@ -47,10 +37,15 @@
   public function getId($name) {
 
     $query = 'SELECT id FROM ' . $this->table . ' WHERE category = ?';
+
     $stmt = $this->conn->prepare($query);
+
     $stmt->bindParam(1, $name);
+
     $stmt->execute();
+
     $result = $stmt->fetchColumn();
+
     return $result;
   }
 
@@ -59,7 +54,8 @@
     $existingId = $this->getId($this->name);
 
     if (is_null($existingId)) {
-      $query = 'INSERT INTO ' . $this->table . '(category) VALUES (:name)' ;
+
+      $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
 
       $stmt = $this->conn->prepare($query);
 
@@ -68,40 +64,45 @@
       $stmt-> bindParam(':name', $this->name);
 
       if($stmt->execute()) {
+
         $id = $this->getId($this->name);
+
         $this->id = $id;
+
         return true;
       }
 
       printf("Error: %s.\n", $stmt->error);
+
       return false;
+
     } else {
+
       echo "Category $this->name already exists with an id of $existingId.";
     }
   }
 
   public function update() {
 
-    $query = 'UPDATE ' .
-      $this->table . '
-    SET
-      category = :name
-      WHERE
-      id = :id';
+    $query = 'UPDATE ' . $this->table . ' SET category = :name WHERE id = :id';
 
     $stmt = $this->conn->prepare($query);
 
     $this->name = htmlspecialchars(strip_tags($this->name));
+
     $this->id = htmlspecialchars(strip_tags($this->id));
 
     $stmt-> bindParam(':name', $this->name);
+
     $stmt-> bindParam(':id', $this->id);
 
     if($stmt->execute()) {
+
       return true;
     }
 
     printf("Error: %s.\n", $stmt->error);
+
     return false;
   }
 
@@ -116,10 +117,12 @@
     $stmt-> bindParam(':id', $this->id);
 
     if ($stmt->execute()) {
+
       return true;
     }
 
     printf("Error: %s.\n", $stmt->error);
+    
     return false;
   }
 }
