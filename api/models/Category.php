@@ -53,7 +53,7 @@
 
     $existingId = $this->getId($this->name);
 
-    if (is_null($existingId)) {
+    if (!$existingId) {
 
       $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
 
