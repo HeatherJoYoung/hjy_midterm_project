@@ -52,7 +52,7 @@
 
     } else {
 
-      echo json_encode(array('message' => 'No Categories Found'));
+      echo json_encode(array('message' => 'category_id Not Found'));
     }
   }
 
@@ -60,12 +60,18 @@
 
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $categoryName = $requestBody['category'];
+
+    if (!$categoryName) {
+      http_response_code(404);
+      return json_encode(array('message' => 'Missing Required Parameters'));
+    }
+
     $category = new Category();
     $category->name = $categoryName;
     
     $result = $category->create();
 
-    return $result ? json_encode($category) : 'failed to create category';
+    return $result ? json_encode($category) : json_encode(array('message' => 'failed to create category'));
   }
 
   function updateCategory() {
@@ -77,8 +83,7 @@
     if (is_null($categoryName) || is_null($categoryId)) {
 
       http_response_code(400);
-
-      return 'ID and Category fields are required to make an update.'; 
+      return json_encode(array('message' => 'Missing Required Parameters'));
     }
 
     $category = new Category();
@@ -87,7 +92,7 @@
     
     $result = $category->update();
 
-    return $result ? json_encode($category) : 'failed to update category';
+    return $result ? json_encode($category) : json_encode(array('message' => 'failed to update category'));
   }
 
   function deleteCategory() {

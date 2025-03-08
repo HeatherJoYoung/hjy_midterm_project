@@ -13,11 +13,32 @@
       $this->conn = $GLOBALS['db'];
     }
 
-    public function read() {
-      $query = 'SELECT q.id, q.quotation, a.author, c.category
+    public function read($filters) {
+      $query = 'SELECT q.id, q.quote, a.author, c.category
       FROM ' . $this->table . ' q 
       JOIN categories c ON q.category_id = c.id
       JOIN authors a ON q.author_id = a.id';
+
+      if ($filters) {
+
+        $whereStatement = ' WHERE ';
+        $keys = array_keys($filters);
+
+        for ($i = 0; $i < count($keys); $i++) {
+
+          if ($i === 0) {
+
+            $whereStatement .= $keys[$i] . ' = ' . $filters[$keys[$i]];
+
+          } else {
+
+            $whereStatement .= ' AND ' . $keys[$i] . ' = ' . $filters[$keys[$i]];
+
+          }
+        }
+        
+        $query .= $whereStatement;
+      }
 
       $stmt = $this->conn->prepare($query);
 
@@ -28,7 +49,7 @@
 
   public function read_single($id) {
 
-    $query = 'SELECT q.id, q.quotation, a.author, c.category FROM ' . $this->table . ' q 
+    $query = 'SELECT q.id, q.quote, a.author, c.category FROM ' . $this->table . ' q 
     JOIN categories c ON q.category_id = c.id
     JOIN authors a ON q.author_id = a.id
     WHERE q.id = ?';
@@ -44,7 +65,7 @@
 
   public function getId() {
 
-    $query = 'SELECT id FROM ' . $this->table . ' WHERE quotation = ?';
+    $query = 'SELECT id FROM ' . $this->table . ' WHERE quote = ?';
 
     $stmt = $this->conn->prepare($query);
 
@@ -63,7 +84,7 @@
 
     if (!$existingId) {
 
-      $query = 'INSERT INTO ' . $this->table . ' (quotation, author_id, category_id) VALUES (:quotation, :author_id, :category_id)' ;
+      $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quotation, :author_id, :category_id)' ;
 
       $stmt = $this->conn->prepare($query);
 
@@ -96,7 +117,7 @@
 
   public function update() {
 
-    $query = 'UPDATE ' . $this->table . ' SET quotation = :quotation, category_id = :category_id, author_id = :author_id WHERE id = :id';
+    $query = 'UPDATE ' . $this->table . ' SET quote = :quotation, category_id = :category_id, author_id = :author_id WHERE id = :id';
 
     $stmt = $this->conn->prepare($query);
 

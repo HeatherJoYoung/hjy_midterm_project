@@ -52,8 +52,7 @@
 
     } else {
 
-        $errorMsg = $id ? 'Author ' . $id . ' not found' : 'No authors found';
-        echo json_encode(array('message' => $errorMsg));
+        echo json_encode(array('message' => 'author_id Not Found'));
     }
   }
 
@@ -61,14 +60,18 @@
 
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $authorName = $requestBody['author'];
+    
+    if (!$authorName) {
+      http_response_code(400);
+      return json_encode(array('message' => 'Missing Required Parameters'));
+    }
+
     $author = new Author();
     $author->name = $authorName;
 
-    echo 'authorName: ' . $authorName;
-    
     $result = $author->create();
 
-    return $result ? json_encode($author) : 'failed to create author';
+    return $result ? json_encode($author) : json_encode(array('message' => 'failed to create author'));
   }
 
   function updateAuthor() {
@@ -77,11 +80,10 @@
     $authorName = $requestBody['author'];
     $authorId = $requestBody['id'];
 
-    if (is_null($authorName) || is_null($authorId)) {
+    if (!$authorName || !$authorId) {
 
       http_response_code(400);
-
-      return 'ID and Author fields are required to make an update.'; 
+      return 'Missing Required Parameters'; 
     }
 
     $author = new Author();
@@ -90,7 +92,7 @@
     
     $result = $author->update();
 
-    return $result ? json_encode($author) : 'failed to update author';
+    return $result ? json_encode($author) : 'Failed to update author';
   }
 
   function deleteAuthor() {

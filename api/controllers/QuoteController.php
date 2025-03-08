@@ -27,9 +27,19 @@
     parse_str(html_entity_decode($queryString), $vars);
 
     $id = isset($vars['id']) ? $vars['id'] : '';
-    $quote = new Quote();
+    $filters = [];
+    
+    if (isset($vars['category_id'])) {
+      $filters['q.category_id'] = $vars['category_id'];
+    }
 
-    $result = $id ? $quote->read_single($id): $quote->read();
+    if (isset($vars['author_id'])) {
+      $filters['q.author_id'] = $vars['author_id'];
+    }
+
+    $quoteObject = new Quote();
+
+    $result = $id ? $quoteObject->read_single($id) : $quoteObject->read($filters);
     
     $num = $result->rowCount();
 
@@ -43,7 +53,7 @@
        
         $cat_item = array(
             'id' => $id,
-            'quotation' => htmlspecialchars_decode($quotation),
+            'quote' => htmlspecialchars_decode($quote),
             'category' => $category,
             'author' => $author
         );
@@ -55,7 +65,7 @@
 
     } else {
 
-      echo json_encode(array('message' => 'No quotes found'));
+      echo json_encode(array('message' => 'No Quotes Found'));
     }
   }
 
@@ -65,13 +75,19 @@
     $quotation = $requestBody['quote'];
     $category_id = $requestBody['category_id'];
     $author_id = $requestBody['author_id'];
+
+    if (!$quotation || !$category_id || !$author_id) {
+      http_response_code(404);
+      return json_encode(array('message' => 'Missing Required Parameters'));
+    }
+
     $quote = new Quote();
     $quote->quotation = $quotation;
     $quote->author_id = $author_id;
     $quote->category_id = $category_id;
     $result = $quote->create();
 
-    return $result ? json_encode($quote) : 'failed to create quote';
+    return $result ? json_encode($quote) : json_encode(array('message' => 'failed to create quote'));
   }
 
   function updateQuote() {
@@ -85,8 +101,7 @@
     if (is_null($quotation) || is_null($id) || is_null($author_id) || is_null($category_id)) {
 
       http_response_code(400);
-
-      return 'ID and Category fields are required to make an update.'; 
+      return json_encode(array('message' => 'Missing Required Parameters'));
     }
 
     $quote = new Quote();

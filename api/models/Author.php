@@ -21,56 +21,82 @@
       return $stmt;
     }
 
-  public function read_single($id) {
+    public function read_single($id) {
 
-    $query = 'SELECT id, author FROM ' . $this->table . ' WHERE id = ?';
+      $query = 'SELECT id, author FROM ' . $this->table . ' WHERE id = ?';
 
-    $stmt = $this->conn->prepare($query);
+      $stmt = $this->conn->prepare($query);
 
-    $stmt->bindParam(1, $id);
+      $stmt->bindParam(1, $id);
 
-    $stmt->execute();
+      $stmt->execute();
 
-    return $stmt;
-  }
+      return $stmt;
+    }
 
-  public function getId($name) {
+    public function getId($name) {
 
-    $query = 'SELECT id FROM ' . $this->table . ' WHERE author = ?';
+      $query = 'SELECT id FROM ' . $this->table . ' WHERE author = ?';
 
-    $stmt = $this->conn->prepare($query);
+      $stmt = $this->conn->prepare($query);
 
-    $stmt->bindParam(1, $name);
+      $stmt->bindParam(1, $name);
 
-    $stmt->execute();
+      $stmt->execute();
 
-    $result = $stmt->fetchColumn();
+      $result = $stmt->fetchColumn();
 
-    return $result;
-  }
+      return $result;
+    }
 
-  public function create() {
+    public function create() {
 
-    $existingId = $this->getId($this->name);
+      $existingId = $this->getId($this->name);
 
-    echo 'existingId: ' . $existingId;
-    echo 'vardump existingId: ' . var_dump($existingId);
+      if (!$existingId) {
 
-    if (!$existingId) {
+        $query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:name)' ;
 
-      $query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:name)' ;
+        $stmt = $this->conn->prepare($query);
+
+        $this->name = htmlspecialchars(strip_tags($this->name));
+
+        $stmt-> bindParam(':name', $this->name);
+
+        if($stmt->execute()) {
+
+          $id = $this->getId($this->name);
+
+          $this->id = $id;
+
+          return true;
+        }
+
+        printf("Error: %s.\n", $stmt->error);
+
+        return false;
+
+      } else {
+
+        echo "Author $this->name already exists with an id of $existingId.";
+      }
+    }
+
+    public function update() {
+
+      $query = 'UPDATE ' . $this->table . ' SET author = :name WHERE id = :id';
 
       $stmt = $this->conn->prepare($query);
 
       $this->name = htmlspecialchars(strip_tags($this->name));
 
+      $this->id = htmlspecialchars(strip_tags($this->id));
+
       $stmt-> bindParam(':name', $this->name);
 
+      $stmt-> bindParam(':id', $this->id);
+
       if($stmt->execute()) {
-
-        $id = $this->getId($this->name);
-
-        $this->id = $id;
 
         return true;
       }
@@ -78,54 +104,25 @@
       printf("Error: %s.\n", $stmt->error);
 
       return false;
-
-    } else {
-
-      echo "Author $this->name already exists with an id of $existingId.";
-    }
-  }
-
-  public function update() {
-
-    $query = 'UPDATE ' . $this->table . ' SET author = :name WHERE id = :id';
-
-    $stmt = $this->conn->prepare($query);
-
-    $this->name = htmlspecialchars(strip_tags($this->name));
-
-    $this->id = htmlspecialchars(strip_tags($this->id));
-
-    $stmt-> bindParam(':name', $this->name);
-
-    $stmt-> bindParam(':id', $this->id);
-
-    if($stmt->execute()) {
-
-      return true;
     }
 
-    printf("Error: %s.\n", $stmt->error);
+    public function delete($id) {
 
-    return false;
-  }
+      $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 
-  public function delete($id) {
+      $stmt = $this->conn->prepare($query);
 
-    $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
+      $this->id = htmlspecialchars(strip_tags($id));
 
-    $stmt = $this->conn->prepare($query);
+      $stmt-> bindParam(':id', $this->id);
 
-    $this->id = htmlspecialchars(strip_tags($id));
+      if ($stmt->execute()) {
 
-    $stmt-> bindParam(':id', $this->id);
+        return true;
+      }
 
-    if ($stmt->execute()) {
-
-      return true;
+      printf("Error: %s.\n", $stmt->error);
+      
+      return false;
     }
-
-    printf("Error: %s.\n", $stmt->error);
-    
-    return false;
   }
-}
