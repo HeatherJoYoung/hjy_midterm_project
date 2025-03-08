@@ -8,10 +8,12 @@
     public $name;
 
     public function __construct() {
+
       $this->conn = $GLOBALS['db'];
     }
 
     public function read() {
+
       $query = 'SELECT id, author FROM ' . $this->table . ' ORDER BY id';
 
       $stmt = $this->conn->prepare($query);
@@ -53,60 +55,66 @@
 
       $existingId = $this->getId($this->name);
 
-      if (!$existingId) {
-
-        $query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:name)' ;
-
-        $stmt = $this->conn->prepare($query);
-
-        $this->name = htmlspecialchars(strip_tags($this->name));
-
-        $stmt-> bindParam(':name', $this->name);
-
-        if($stmt->execute()) {
-
-          $id = $this->getId($this->name);
-
-          $this->id = $id;
-
-          return true;
-        }
-
-        printf("Error: %s.\n", $stmt->error);
-
-        return false;
-
-      } else {
-
-        echo "Author $this->name already exists with an id of $existingId.";
+      if ($existingId) {
+        return array('status'=>'error', 'message'=>"Author $this->name already exists with an id of $existingId.");
       }
+
+      $query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:name)' ;
+
+      $stmt = $this->conn->prepare($query);
+
+      $this->name = htmlspecialchars(strip_tags($this->name));
+
+      $stmt-> bindParam(':name', $this->name);
+
+      if($stmt->execute()) {
+
+        $id = $this->getId($this->name);
+
+        $this->id = $id;
+
+        return array('status'=>'success');
+      }
+
+      return array('status'=>'error', 'message'=>$stmt->error);
+    }
+
+    private function exists($id) {
+
+      $existingItem = $this->read_single($this->id);
+      $count = $existingItem->rowCount();
+
+      return $count > 0;
     }
 
     public function update() {
+
+      if (!$this->exists($this->id)) {
+        return array('status'=>'error', 'message'=>'author_id Not Found');
+      }
 
       $query = 'UPDATE ' . $this->table . ' SET author = :name WHERE id = :id';
 
       $stmt = $this->conn->prepare($query);
 
       $this->name = htmlspecialchars(strip_tags($this->name));
-
       $this->id = htmlspecialchars(strip_tags($this->id));
-
       $stmt-> bindParam(':name', $this->name);
-
       $stmt-> bindParam(':id', $this->id);
 
       if($stmt->execute()) {
 
-        return true;
+        return array("status"=>"success");
       }
 
-      printf("Error: %s.\n", $stmt->error);
-
-      return false;
+      return array("status"=>"error", "message"=>"update failed");
     }
 
     public function delete($id) {
+
+      if (!$this->exists($this->id)) {
+        return array('status'=>'error', 'message'=>'author_id Not Found');
+      }
 
       $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 
@@ -118,11 +126,9 @@
 
       if ($stmt->execute()) {
 
-        return true;
+        return array("status"=>"success");
       }
-
-      printf("Error: %s.\n", $stmt->error);
       
-      return false;
+      return array("status"=>"error", "message"=>"author_id Not Found");
     }
   }

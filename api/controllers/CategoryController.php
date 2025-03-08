@@ -3,6 +3,12 @@
   header('Access-Control-Allow-Origin: *');
   header('Content-Type: application/json');
 
+  if ($method === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+    header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
+    exit();
+  }
+
   include_once(__DIR__ . '/../models/Category.php');
 
   switch ($method) {
@@ -71,7 +77,7 @@
     
     $result = $category->create();
 
-    return $result ? json_encode($category) : json_encode(array('message' => 'failed to create category'));
+    echo $result['status'] == 'success' ? json_encode($category) : json_encode(array('message'=>$result['message']));
   }
 
   function updateCategory() {
@@ -81,9 +87,9 @@
     $categoryId = $requestBody['id'];
 
     if (is_null($categoryName) || is_null($categoryId)) {
-
       http_response_code(400);
-      return json_encode(array('message' => 'Missing Required Parameters'));
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
     }
 
     $category = new Category();
@@ -92,21 +98,26 @@
     
     $result = $category->update();
 
-    return $result ? json_encode($category) : json_encode(array('message' => 'failed to update category'));
+    echo $result['status'] == 'success' ? json_encode($category) : json_encode(array('message' => $result['message']));
   }
 
   function deleteCategory() {
 
     $queryString = $_SERVER['QUERY_STRING'];
-
     parse_str(html_entity_decode($queryString), $vars);
-
     $id = isset($vars['id']) ? $vars['id'] : '';
+
+    if (is_null($id)) {
+      http_response_code(400);
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
+    }
+
     $category = new Category();
 
     $result = $category->delete($id);
 
-    return $result ? json_encode($id) : 'Failed to delete record ' . $id;
+    echo $result['status'] == 'success' ? json_encode($id) : json_encode(array('message'=>$result['message']));
   }
   
 ?>

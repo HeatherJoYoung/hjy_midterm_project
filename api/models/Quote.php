@@ -30,10 +30,9 @@
 
             $whereStatement .= $keys[$i] . ' = ' . $filters[$keys[$i]];
 
-          } else {
+          } else {  
 
             $whereStatement .= ' AND ' . $keys[$i] . ' = ' . $filters[$keys[$i]];
-
           }
         }
         
@@ -82,40 +81,47 @@
 
     $existingId = $this->getId();
 
-    if (!$existingId) {
-
-      $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quotation, :author_id, :category_id)' ;
-
-      $stmt = $this->conn->prepare($query);
-
-      $this->quotation = htmlspecialchars(strip_tags($this->quotation));
-      $this->author_id = htmlspecialchars(strip_tags($this->author_id));
-      $this->category_id = htmlspecialchars(strip_tags($this->category_id));
-
-      $stmt-> bindParam(':quotation', $this->quotation);
-      $stmt-> bindParam(':author_id', $this->author_id);
-      $stmt-> bindParam(':category_id', $this->category_id);
-
-      if($stmt->execute()) {
-
-        $id = $this->getId();
-
-        $this->id = $id;
-
-        return true;
-      }
-
-      printf("Error: %s.\n", $stmt->error);
-
-      return false;
-
-    } else {
-
-      echo "Quote already exists with an id of $existingId.";
+    if ($existingId) {
+      return array('status'=>'error', 'message'=>"Quote already exists with an id of $existingId.");
     }
+
+    $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quotation, :author_id, :category_id)' ;
+
+    $stmt = $this->conn->prepare($query);
+
+    $this->quotation = htmlspecialchars(strip_tags($this->quotation));
+    $this->author_id = htmlspecialchars(strip_tags($this->author_id));
+    $this->category_id = htmlspecialchars(strip_tags($this->category_id));
+
+    $stmt-> bindParam(':quotation', $this->quotation);
+    $stmt-> bindParam(':author_id', $this->author_id);
+    $stmt-> bindParam(':category_id', $this->category_id);
+
+    if($stmt->execute()) {
+
+      $id = $this->getId();
+
+      $this->id = $id;
+
+      return array('status'=>'success');
+    }
+
+    return array('status'=>'error', 'message'=>$stmt->error);
+  }
+
+  private function exists($id) {
+
+    $existingItem = $this->read_single($this->id);
+    $count = $existingItem->rowCount();
+
+    return $count > 0;
   }
 
   public function update() {
+
+    if (!$this->exists($this->id)) {
+      return array('status'=>'error', 'message'=>'No Quotes Found');
+    }
 
     $query = 'UPDATE ' . $this->table . ' SET quote = :quotation, category_id = :category_id, author_id = :author_id WHERE id = :id';
 
@@ -135,15 +141,17 @@
 
     if($stmt->execute()) {
 
-      return true;
+      return array('status'=>'success');
     }
 
-    printf("Error: %s.\n", $stmt->error);
-
-    return false;
+    return array('status'=>'error', 'message'=>$stmt->error);
   }
 
   public function delete($id) {
+
+    if (!$this->exists($this->id)) {
+      return array('status'=>'error', 'message'=>'No Quotes Found');
+    }
 
     $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 
@@ -155,11 +163,9 @@
 
     if ($stmt->execute()) {
 
-      return true;
+      return array('status'=>'success');
     }
-
-    printf("Error: %s.\n", $stmt->error);
     
-    return false;
+    return array('status'=>'error', 'message'=>$stmt->error);
   }
 }

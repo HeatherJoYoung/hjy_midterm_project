@@ -3,6 +3,12 @@
   header('Access-Control-Allow-Origin: *');
   header('Content-Type: application/json');
 
+  if ($method === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+    header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
+    exit();
+  }
+
   include_once(__DIR__ . '/../models/Author.php');
 
   switch ($method) {
@@ -63,7 +69,8 @@
     
     if (!$authorName) {
       http_response_code(400);
-      return json_encode(array('message' => 'Missing Required Parameters'));
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
     }
 
     $author = new Author();
@@ -71,7 +78,9 @@
 
     $result = $author->create();
 
-    return $result ? json_encode($author) : json_encode(array('message' => 'failed to create author'));
+    $responseBody = $result['status'] == 'success' ? $author : array('message' => $result['message']);
+
+    echo json_encode($responseBody);
   }
 
   function updateAuthor() {
@@ -81,9 +90,9 @@
     $authorId = $requestBody['id'];
 
     if (!$authorName || !$authorId) {
-
       http_response_code(400);
-      return 'Missing Required Parameters'; 
+      echo 'Missing Required Parameters';
+      return; 
     }
 
     $author = new Author();
@@ -92,21 +101,30 @@
     
     $result = $author->update();
 
-    return $result ? json_encode($author) : 'Failed to update author';
+    $responseBody = $result['status'] == 'success' ? $author : array('message'=>$result['message']);
+
+    echo json_encode($responseBody);
   }
 
   function deleteAuthor() {
 
     $queryString = $_SERVER['QUERY_STRING'];
-
     parse_str(html_entity_decode($queryString), $vars);
-
     $id = isset($vars['id']) ? $vars['id'] : '';
+    
+    if (!$id) {
+      http_response_code(400);
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
+    }
+
     $author = new Author();
 
     $result = $author->delete($id);
 
-    return $result ? json_encode($id) : 'Failed to delete author ' . $id;
+    $responseBody = $result['status'] == 'success' ? $id : array("message"=>$result['message']);
+
+    echo json_encode($responseBody);
   }
   
 ?>

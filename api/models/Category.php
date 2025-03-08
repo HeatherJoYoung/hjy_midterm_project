@@ -53,36 +53,43 @@
 
     $existingId = $this->getId($this->name);
 
-    if (!$existingId) {
-
-      $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
-
-      $stmt = $this->conn->prepare($query);
-
-      $this->name = htmlspecialchars(strip_tags($this->name));
-
-      $stmt-> bindParam(':name', $this->name);
-
-      if($stmt->execute()) {
-
-        $id = $this->getId($this->name);
-
-        $this->id = $id;
-
-        return true;
-      }
-
-      printf("Error: %s.\n", $stmt->error);
-
-      return false;
-
-    } else {
-
-      echo "Category $this->name already exists with an id of $existingId.";
+    if ($existingId) {
+      return array('status'=>'error', 'message'=>"Category $this->name already exists with an id of $existingId.");
     }
+
+    $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
+
+    $stmt = $this->conn->prepare($query);
+
+    $this->name = htmlspecialchars(strip_tags($this->name));
+
+    $stmt-> bindParam(':name', $this->name);
+
+    if($stmt->execute()) {
+
+      $id = $this->getId($this->name);
+
+      $this->id = $id;
+
+      return array('status'=>'success');
+    }
+
+    return array('status'=>'error', 'message'=>'failed to create new record');
+  }
+
+  private function exists($id) {
+
+    $existingItem = $this->read_single($this->id);
+    $count = $existingItem->rowCount();
+
+    return $count > 0;
   }
 
   public function update() {
+
+    if (!$this->exists($this->id)) {
+      return array('status'=>'error', 'message'=>'category_id Not Found');
+    }
 
     $query = 'UPDATE ' . $this->table . ' SET category = :name WHERE id = :id';
 
@@ -107,6 +114,10 @@
   }
 
   public function delete($id) {
+
+    if (!$this->exists($this->id)) {
+      return array('status'=>'error', 'message'=>'category_id Not Found');
+    }
 
     $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 

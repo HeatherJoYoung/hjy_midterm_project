@@ -3,6 +3,12 @@
   header('Access-Control-Allow-Origin: *');
   header('Content-Type: application/json');
 
+  if ($method === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+    header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
+    exit();
+  }
+
   include_once(__DIR__ . '/../models/Quote.php');
 
   switch ($method) {
@@ -78,7 +84,8 @@
 
     if (!$quotation || !$category_id || !$author_id) {
       http_response_code(404);
-      return json_encode(array('message' => 'Missing Required Parameters'));
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
     }
 
     $quote = new Quote();
@@ -87,7 +94,7 @@
     $quote->category_id = $category_id;
     $result = $quote->create();
 
-    return $result ? json_encode($quote) : json_encode(array('message' => 'failed to create quote'));
+    echo $result['status'] == 'success' ? json_encode($quote) : json_encode(array('message' => $result['message']));
   }
 
   function updateQuote() {
@@ -99,9 +106,9 @@
     $category_id = $requestBody['category_id'];
 
     if (is_null($quotation) || is_null($id) || is_null($author_id) || is_null($category_id)) {
-
       http_response_code(400);
-      return json_encode(array('message' => 'Missing Required Parameters'));
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
     }
 
     $quote = new Quote();
@@ -112,16 +119,21 @@
     
     $result = $quote->update();
 
-    return $result ? json_encode($quote) : 'failed to update category';
+    echo $result ? json_encode($quote) : 'failed to update category';
   }
 
   function deleteQuote() {
 
     $queryString = $_SERVER['QUERY_STRING'];
-
     parse_str(html_entity_decode($queryString), $vars);
-
     $id = isset($vars['id']) ? $vars['id'] : '';
+
+    if (is_null($id)) {
+      http_response_code(400);
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
+    }
+
     $quote = new Quote();
 
     $result = $quote->delete($id);
