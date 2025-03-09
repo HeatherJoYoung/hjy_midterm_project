@@ -79,7 +79,7 @@
       return array('status'=>'error', 'message'=>$stmt->error);
     }
 
-    private function exists($id) {
+    public function exists($id) {
 
       $queryResult = $this->read_single($id);
       $rows = $queryResult->fetchAll();

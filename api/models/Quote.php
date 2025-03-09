@@ -13,12 +13,11 @@
       $this->conn = $GLOBALS['db'];
     }
 
-    public function read($filters) {
+    public function read($filters, $random) {
       $query = 'SELECT q.id, q.quote, a.author, c.category
       FROM ' . $this->table . ' q 
       JOIN categories c ON q.category_id = c.id
-      JOIN authors a ON q.author_id = a.id
-      ORDER BY q.id';
+      JOIN authors a ON q.author_id = a.id';
 
       if ($filters) {
 
@@ -39,6 +38,9 @@
         
         $query .= $whereStatement;
       }
+
+      $end = $random ? ' ORDER BY random() LIMIT 1' : ' ORDER BY id';
+      $query .= $end;
 
       $stmt = $this->conn->prepare($query);
 
@@ -88,6 +90,17 @@
 
     if ($existingId) {
       return array('status'=>'error', 'message'=>"Quote already exists with an id of $existingId.");
+    }
+
+    $categoryExists = (new Category())->exists($this->category_id);
+    $authorExists = (new Author())->exists($this->author_id);
+
+    if (!$categoryExists) {
+      return array('status'=>'error', 'message'=>'category_id Not Found');
+    }
+
+    if (!$authorExists) {
+      return array('status'=>'error', 'message'=>'author_id Not Found');
     }
 
     $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quote, :author_id, :category_id)' ;

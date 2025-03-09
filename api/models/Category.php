@@ -77,7 +77,7 @@
     return array('status'=>'error', 'message'=>'failed to create new record');
   }
 
-  private function exists($id) {
+  public function exists($id) {
 
     $queryResult = $this->read_single($id);
     $rows = $queryResult->fetchAll();

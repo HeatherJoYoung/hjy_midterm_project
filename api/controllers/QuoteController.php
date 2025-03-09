@@ -34,6 +34,7 @@
 
     $id = isset($vars['id']) ? $vars['id'] : '';
     $filters = [];
+    $random = !empty($vars['random']) ? true : false;
     
     if (isset($vars['category_id'])) {
       $filters['q.category_id'] = $vars['category_id'];
@@ -45,7 +46,7 @@
 
     $quoteObject = new Quote();
 
-    $result = $id ? $quoteObject->read_single($id) : $quoteObject->read($filters);
+    $result = $id ? $quoteObject->read_single($id) : $quoteObject->read($filters, $random);
     
     $num = $result->rowCount();
 
