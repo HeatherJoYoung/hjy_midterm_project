@@ -111,10 +111,10 @@
 
   private function exists($id) {
 
-    $existingItem = $this->read_single($this->id);
-    $count = $existingItem->rowCount();
+    $queryResult = $this->read_single($id);
+    $rows = $queryResult->fetchAll();
 
-    return $count > 0;
+    return count($rows) > 0;
   }
 
   public function update() {

@@ -81,10 +81,10 @@
 
     private function exists($id) {
 
-      $existingItem = $this->read_single($this->id);
-      $count = $existingItem->rowCount();
+      $queryResult = $this->read_single($id);
+      $rows = $queryResult->fetchAll();
 
-      return $count > 0;
+      return count($rows) > 0;
     }
 
     public function update() {
@@ -112,7 +112,7 @@
 
     public function delete($id) {
 
-      if (!$this->exists($this->id)) {
+      if (!$this->exists($id)) {
         return array('status'=>'error', 'message'=>'author_id Not Found');
       }
 
