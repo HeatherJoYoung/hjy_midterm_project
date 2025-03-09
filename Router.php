@@ -8,12 +8,15 @@ switch($request) {
     case '/hjy_midterm_project':
     case '/hjy_midterm_project/api':
         break;
+    case '/hjy_midterm_project/api/authors':
     case '/hjy_midterm_project/api/authors/':
         require __DIR__ . $controllerDirectory . 'AuthorController.php';
         break;
+    case '/hjy_midterm_project/api/categories':
     case '/hjy_midterm_project/api/categories/':
         require __DIR__ . $controllerDirectory . 'CategoryController.php';
         break;
+    case '/hjy_midterm_project/api/quotes':
     case '/hjy_midterm_project/api/quotes/':
         require __DIR__ . $controllerDirectory . 'QuoteController.php';
         break;

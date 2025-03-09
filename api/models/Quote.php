@@ -5,7 +5,7 @@
     private $conn;
     private $table = 'quotes';
     public $id;
-    public $quotation;
+    public $quote;
     public $category_id;
     public $author_id;
 
@@ -17,7 +17,8 @@
       $query = 'SELECT q.id, q.quote, a.author, c.category
       FROM ' . $this->table . ' q 
       JOIN categories c ON q.category_id = c.id
-      JOIN authors a ON q.author_id = a.id';
+      JOIN authors a ON q.author_id = a.id
+      ORDER BY q.id';
 
       if ($filters) {
 
@@ -68,7 +69,7 @@
 
     $stmt = $this->conn->prepare($query);
 
-    $stmt->bindParam(1, $this->quotation);
+    $stmt->bindParam(1, $this->quote);
 
     $stmt->execute();
 
@@ -79,21 +80,21 @@
 
   public function create() {
 
+    $this->quote = htmlspecialchars(strip_tags($this->quote));
+    $this->author_id = htmlspecialchars(strip_tags($this->author_id));
+    $this->category_id = htmlspecialchars(strip_tags($this->category_id));
+
     $existingId = $this->getId();
 
     if ($existingId) {
       return array('status'=>'error', 'message'=>"Quote already exists with an id of $existingId.");
     }
 
-    $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quotation, :author_id, :category_id)' ;
+    $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quote, :author_id, :category_id)' ;
 
     $stmt = $this->conn->prepare($query);
 
-    $this->quotation = htmlspecialchars(strip_tags($this->quotation));
-    $this->author_id = htmlspecialchars(strip_tags($this->author_id));
-    $this->category_id = htmlspecialchars(strip_tags($this->category_id));
-
-    $stmt-> bindParam(':quotation', $this->quotation);
+    $stmt-> bindParam(':quote', $this->quote);
     $stmt-> bindParam(':author_id', $this->author_id);
     $stmt-> bindParam(':category_id', $this->category_id);
 
@@ -102,6 +103,7 @@
       $id = $this->getId();
 
       $this->id = $id;
+      $this->quote = htmlspecialchars_decode($this->quote);
 
       return array('status'=>'success');
     }
@@ -123,15 +125,15 @@
       return array('status'=>'error', 'message'=>'No Quotes Found');
     }
 
-    $query = 'UPDATE ' . $this->table . ' SET quote = :quotation, category_id = :category_id, author_id = :author_id WHERE id = :id';
+    $query = 'UPDATE ' . $this->table . ' SET quote = :quote, category_id = :category_id, author_id = :author_id WHERE id = :id';
 
     $stmt = $this->conn->prepare($query);
 
-    $this->quotation = htmlspecialchars(strip_tags($this->quotation));
+    $this->quote = htmlspecialchars(strip_tags($this->quote));
 
     $this->id = htmlspecialchars(strip_tags($this->id));
 
-    $stmt-> bindParam(':quotation', $this->quotation);
+    $stmt-> bindParam(':quote', $this->quote);
 
     $stmt-> bindParam(':category_id', $this->category_id);
 
@@ -141,6 +143,7 @@
 
     if($stmt->execute()) {
 
+      $this->quote = htmlspecialchars_decode($this->quote);
       return array('status'=>'success');
     }
 
@@ -149,7 +152,7 @@
 
   public function delete($id) {
 
-    if (!$this->exists($this->id)) {
+    if (!$this->exists($id)) {
       return array('status'=>'error', 'message'=>'No Quotes Found');
     }
 

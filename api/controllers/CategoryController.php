@@ -68,7 +68,7 @@
     $categoryName = $requestBody['category'];
 
     if (!$categoryName) {
-      http_response_code(404);
+      http_response_code(400);
       return json_encode(array('message' => 'Missing Required Parameters'));
     }
 

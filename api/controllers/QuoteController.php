@@ -78,48 +78,48 @@
   function createQuote() {
 
     $requestBody = json_decode(file_get_contents('php://input'), true);
-    $quotation = $requestBody['quote'];
-    $category_id = $requestBody['category_id'];
-    $author_id = $requestBody['author_id'];
+    $quote = isset($requestBody['quote']) ? $requestBody['quote'] : '';
+    $category_id = isset($requestBody['category_id']) ? $requestBody['category_id'] : '';
+    $author_id = isset($requestBody['author_id']) ? $requestBody['author_id'] : '';
 
-    if (!$quotation || !$category_id || !$author_id) {
-      http_response_code(404);
-      echo json_encode(array('message' => 'Missing Required Parameters'));
-      return;
-    }
-
-    $quote = new Quote();
-    $quote->quotation = $quotation;
-    $quote->author_id = $author_id;
-    $quote->category_id = $category_id;
-    $result = $quote->create();
-
-    echo $result['status'] == 'success' ? json_encode($quote) : json_encode(array('message' => $result['message']));
-  }
-
-  function updateQuote() {
-
-    $requestBody = json_decode(file_get_contents('php://input'), true);
-    $quotation = $requestBody['quote'];
-    $id = $requestBody['id'];
-    $author_id = $requestBody['author_id'];
-    $category_id = $requestBody['category_id'];
-
-    if (is_null($quotation) || is_null($id) || is_null($author_id) || is_null($category_id)) {
+    if (!$quote || !$category_id || !$author_id) {
       http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
 
-    $quote = new Quote();
-    $quote->id = $id;
-    $quote->quotation = $quotation;
-    $quote->author_id = $author_id;
-    $quote->category_id = $category_id;
-    
-    $result = $quote->update();
+    $quoteObj = new Quote();
+    $quoteObj->quote = $quote;
+    $quoteObj->author_id = $author_id;
+    $quoteObj->category_id = $category_id;
+    $result = $quoteObj->create();
 
-    echo $result ? json_encode($quote) : 'failed to update category';
+    echo $result['status'] == 'success' ? json_encode($quoteObj) : json_encode(array('message' => $result['message']));
+  }
+
+  function updateQuote() {
+
+    $requestBody = json_decode(file_get_contents('php://input'), true);
+    $quote = isset($requestBody['quote']) ? $requestBody['quote'] : '';
+    $id = isset($requestBody['id']) ? $requestBody['id'] : '';
+    $author_id = isset($requestBody['author_id']) ? $requestBody['author_id'] : '';
+    $category_id = isset($requestBody['category_id']) ? $requestBody['category_id'] : '';
+
+    if (!$quote || !$id || !$author_id || !$category_id) {
+      http_response_code(400);
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+      return;
+    }
+
+    $quoteObj = new Quote();
+    $quoteObj->id = $id;
+    $quoteObj->quote = $quote;
+    $quoteObj->author_id = $author_id;
+    $quoteObj->category_id = $category_id;
+    
+    $result = $quoteObj->update();
+
+    echo $result['status'] == 'success' ? json_encode($quoteObj) : json_encode(array('message'=>$result['message']));
   }
 
   function deleteQuote() {
@@ -134,11 +134,11 @@
       return;
     }
 
-    $quote = new Quote();
+    $quoteObj = new Quote();
 
-    $result = $quote->delete($id);
+    $result = $quoteObj->delete($id);
 
-    return $result ? json_encode($id) : 'Failed to delete record ' . $id;
+    echo $result['status'] == 'success' ? json_encode($id) : json_encode(array('message'=>$result['message']));
   }
   
 ?>
