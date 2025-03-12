@@ -8,7 +8,7 @@ switch($request) {
 	case '/hjy_midterm_project/api/gui/style.css':
 		require __DIR__ . '/gui/style.css';
 		break;
-	case '/hjy_midterm_project/api/gui/home.js':
+	case '/hjy_midterm_project/gui/home.js':
 		require __DIR__ . '/gui/home.js';
 		break;
 	case '/hjy_midterm_project/api':
