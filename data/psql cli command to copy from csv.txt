@@ -1,0 +1,3 @@
+psql -h [database-host-name] -d [database-name] -U [username] -c "\copy [tablename] ([columns]) from 'path-to-csv-file' with delimiter as ',' CSV HEADER"
+
+Note: CSV HEADER is optional depending on whether you have headers in your csv file.
