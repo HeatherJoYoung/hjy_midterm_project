@@ -13,123 +13,219 @@
 
     public function read() {
 
-      $query = 'SELECT id, category FROM ' . $this->table . ' ORDER BY id';
-      $stmt = $this->conn->prepare($query);
+			$result = null;
 
-      $stmt->execute();
+			try {
 
-      return $stmt;
+				$query = 'SELECT id, category FROM ' . $this->table . ' ORDER BY id';
+				$stmt = $this->conn->prepare($query);
+
+				$stmt->execute();
+
+				$result = $stmt;
+
+			} catch (Exception $e) {
+
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+
+      return $result;
     }
 
-  public function read_single($id) {
+		public function read_single($id) {
 
-    $query = 'SELECT id, category FROM ' . $this->table . ' WHERE id = ?';
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(1, $id);
+			$result = null;
 
-    $stmt->execute();
+			try {
 
-    return $stmt;
-  }
+				$query = 'SELECT id, category FROM ' . $this->table . ' WHERE id = ?';
+				$stmt = $this->conn->prepare($query);
+				$stmt->bindParam(1, $id);
 
-  public function getId($name) {
+				$stmt->execute();
 
-    $query = 'SELECT id FROM ' . $this->table . ' WHERE category = ?';
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(1, $name);
+				$result = $stmt;
 
-    $stmt->execute();
+			} catch (Exception $e) {
 
-    $result = $stmt->fetchColumn();
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
 
-    return $result;
-  }
-
-  public function create() {
-
-    $existingId = $this->getId($this->name);
-
-    if ($existingId) {
-      return array('status'=>'error', 'message'=>"Category $this->name already exists with an id of $existingId.");
-    }
-
-    $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
-    $stmt = $this->conn->prepare($query);
-    $stmt-> bindParam(':name', $this->name);
-
-    if($stmt->execute()) {
-
-      $id = $this->getId($this->name);
-
-      $this->id = $id;
-
-      return array('status'=>'success');
-    }
-
-    return array('status'=>'error', 'message'=>'failed to create new record');
-  }
-
-  public function exists($id) {
-
-    $queryResult = $this->read_single($id);
-    $rows = $queryResult->fetchAll();
-
-    return count($rows) > 0;
-  }
-
-	public function isBeingUsedInQuotes ($category_id) {
-
-		$query = 'SELECT * FROM quotes WHERE category_id = :id';
-		$stmt = $this->conn->prepare($query);
-		$stmt->bindParam(':id', $category_id);
-		
-		$stmt->execute();
-		
-		$count = $stmt->rowCount();
-		
-		return $count > 0;
-	}
-
-  public function update() {
-
-    if (!$this->exists($this->id)) {
-      return array('status'=>'error', 'message'=>'category_id Not Found');
-    }
-
-    $query = 'UPDATE ' . $this->table . ' SET category = :name WHERE id = :id';
-    $stmt = $this->conn->prepare($query);
-    $stmt-> bindParam(':name', $this->name);
-    $stmt-> bindParam(':id', $this->id);
-
-    if($stmt->execute()) {
-
-      return array('status'=>'success');
-    }
-
-    return array('status'=>'error', 'message'=>$stmt->error);
-  }
-
-  public function delete($id) {
-
-		$this->id = htmlspecialchars(strip_tags($id));
-
-    if (!$this->exists($id)) {
-      return array('status'=>'error', 'message'=>'category_id Not Found');
-    }
-
-		if ($this->isBeingUsedInQuotes($id)) {
-			return array('status'=>'error', 'message'=>'Cannot delete category because it is referenced in another table.');
+			return $result;
 		}
 
-    $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
-    $stmt = $this->conn->prepare($query);
-    $stmt-> bindParam(':id', $this->id);
+		public function getId($name) {
 
-    if ($stmt->execute()) {
+			$result = null;
 
-      return array('status'=>'success');
-    }
-    
-    return array('status'=>'error', 'message'=>$stmt->error);
-  }
-}
+			try	{
+
+				$query = 'SELECT id FROM ' . $this->table . ' WHERE category = ?';
+				$stmt = $this->conn->prepare($query);
+				$stmt->bindParam(1, $name);
+
+				$stmt->execute();
+
+				$result = $stmt->fetchColumn();
+
+			} catch (Exception $e) {
+
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+
+			return $result;
+		}
+
+		public function create() {
+
+			$result = null;
+			$existingId = $this->getId($this->name);
+
+			if ($existingId) {
+
+				// if the query to check whether category is already in the database fails, pass along the error message. Otherwise, return an error message that category already exists.
+				return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"Cateogry $this->name already exists with an id of $existingId."); 
+			}
+
+			try {
+				$query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
+				$stmt = $this->conn->prepare($query);
+				$stmt-> bindParam(':name', $this->name);
+
+				if($stmt->execute()) {
+
+					$id = $this->getId($this->name);
+
+					$this->id = $id;
+
+					$result = array('status'=>'success');
+				}
+
+			} catch (Exception $e) {
+
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+
+			return $result;
+		}
+
+		public function exists($id) {
+
+			$result = null;
+
+			try {
+
+				$queryResult = $this->read_single($id);
+				$rows = $queryResult->fetchAll();
+
+				return array('status'=>'success', 'result'=>count($rows) > 0);
+
+			} catch (Exception $e) {
+
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+			
+			return $result;
+		}
+
+		public function isBeingUsedInQuotes ($category_id) {
+
+			$result = null;
+
+			try {
+
+				$query = 'SELECT * FROM quotes WHERE category_id = :id';
+				$stmt = $this->conn->prepare($query);
+				$stmt->bindParam(':id', $category_id);
+				
+				$stmt->execute();
+				
+				$count = $stmt->rowCount();
+
+				$result = array('status'=>'success', 'result'=>$count > 0);
+
+			} catch (Exception $e) {
+
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+			
+			return $result;
+		}
+
+		public function update() {
+
+			$itemExists = $this->exists($this->id);
+
+			if ($itemExists['status'] && $itemExists['status'] == 'error') {
+
+				return $itemExists;
+
+			} else if (!$itemExists['result']) {
+
+				return array('status'=>'error', 'message'=>'category_id Not Found');
+			}
+
+			$result = null;
+
+			try {
+
+				$query = 'UPDATE ' . $this->table . ' SET category = :name WHERE id = :id';
+				$stmt = $this->conn->prepare($query);
+				$stmt-> bindParam(':name', $this->name);
+				$stmt-> bindParam(':id', $this->id);
+
+				$stmt->execute();
+
+				$result = array('status'=>'success');
+
+			} catch (Exception $e) {
+
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}	
+
+			return $result;
+		}
+
+		public function delete($id) {
+
+			$result = null;
+			$this->id = htmlspecialchars(strip_tags($id));
+			$entryExists = $this->exists($this->id);
+			$isReferenced = $this->isBeingUsedInQuotes($this->id);
+
+			if ($entryExists['status'] && $entryExists['status'] == 'error') {
+
+				return $entryExists;
+
+			} else if (!$entryExists['result']) {
+
+				return array('status'=>'error', 'message'=>'category_id Not Found');
+			}
+
+			if ($isReferenced['status'] && $isReferenced['status'] == 'error') {
+
+				return  $isReferenced;
+
+			} else if ($isReferenced['result']) {
+
+				return array('status'=>'error', 'message'=>'Cannot delete category because it is referenced in another table.');
+			}
+
+			try {
+
+				$query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
+				$stmt = $this->conn->prepare($query);
+				$stmt-> bindParam(':id', $this->id);
+
+				$stmt->execute();
+
+				$result = array('status'=>'success');
+
+			} catch (Exception $e) {	
+				
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+			
+			return $result;
+		}
+	}

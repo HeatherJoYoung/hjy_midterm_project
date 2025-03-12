@@ -16,72 +16,104 @@
     }
 
     public function read($filters, $random) {
-      $query = 'SELECT q.id, q.quote, a.author, c.category
-      FROM ' . $this->table . ' q 
-      JOIN categories c ON q.category_id = c.id
-      JOIN authors a ON q.author_id = a.id';
 
-      if ($filters) {
+			$result = null;
 
-        $whereStatement = ' WHERE ';
-        $keys = array_keys($filters);
+			try {
 
-        for ($i = 0; $i < count($keys); $i++) {
+				$query = 'SELECT q.id, q.quote, a.author, c.category
+				FROM ' . $this->table . ' q 
+				JOIN categories c ON q.category_id = c.id
+				JOIN authors a ON q.author_id = a.id';
 
-          if ($i === 0) {
+				if ($filters) {
 
-            $whereStatement .= $keys[$i] . ' = ' . $filters[$keys[$i]];
+					$whereStatement = ' WHERE ';
+					$keys = array_keys($filters);
 
-          } else {  
+					for ($i = 0; $i < count($keys); $i++) {
 
-            $whereStatement .= ' AND ' . $keys[$i] . ' = ' . $filters[$keys[$i]];
-          }
-        }
-        
-        $query .= $whereStatement;
-      }
+						if ($i === 0) {
 
-      $end = $random ? ' ORDER BY random() LIMIT 1' : ' ORDER BY id';
-      $query .= $end;
+							$whereStatement .= $keys[$i] . ' = ' . $filters[$keys[$i]];
 
-      $stmt = $this->conn->prepare($query);
+						} else {  
 
-      $stmt->execute();
+							$whereStatement .= ' AND ' . $keys[$i] . ' = ' . $filters[$keys[$i]];
+						}
+					}
+					
+					$query .= $whereStatement;
+				}
 
-      return $stmt;
+				$end = $random ? ' ORDER BY random() LIMIT 1' : ' ORDER BY id';
+				$query .= $end;
+
+				$stmt = $this->conn->prepare($query);
+
+				$stmt->execute();
+
+				$result = $stmt;
+
+			} catch (Exception $e) {
+				
+				$result = array('status'=>'error', 'message'=>$e->getMessage());
+			}
+      
+			return $result;
     }
 
   public function read_single($id) {
 
-    $query = 'SELECT q.id, q.quote, a.author, c.category FROM ' . $this->table . ' q 
-    JOIN categories c ON q.category_id = c.id
-    JOIN authors a ON q.author_id = a.id
-    WHERE q.id = ?';
+		$result = null;
 
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(1, $id);
+		try {
 
-    $stmt->execute();
+			$query = 'SELECT q.id, q.quote, a.author, c.category FROM ' . $this->table . ' q 
+			JOIN categories c ON q.category_id = c.id
+			JOIN authors a ON q.author_id = a.id
+			WHERE q.id = ?';
 
-    return $stmt;
+			$stmt = $this->conn->prepare($query);
+			$stmt->bindParam(1, $id);
+
+			$stmt->execute();
+
+			$result = $stmt;
+
+		} catch (Exception $e) {
+
+			$result = array('status'=>'error', 'message'=>$e->getMessage());
+		}
+
+    return $result;
   }
 
   public function getId() {
 
-    $query = 'SELECT id FROM ' . $this->table . ' WHERE quote = ?';
+		$result = null;
 
-    $stmt = $this->conn->prepare($query);
+		try {
 
-    $stmt->bindParam(1, $this->quote);
+			$query = 'SELECT id FROM ' . $this->table . ' WHERE quote = ?';
+			$stmt = $this->conn->prepare($query);
+			$stmt->bindParam(1, $this->quote);
 
-    $stmt->execute();
+			$stmt->execute();
 
-    $result = $stmt->fetchColumn();
+			$result = $stmt->fetchColumn();
+
+		} catch (Exception $e) {
+
+			$result = array('status'=>'error', 'message'=>$e->getMessage());
+		}
 
     return $result;
   }
 
   public function create() {
+
+		$result = null;
 
     $this->quote = htmlspecialchars(strip_tags($this->quote));
     $this->author_id = htmlspecialchars(strip_tags($this->author_id));
@@ -90,7 +122,9 @@
     $existingId = $this->getId();
 
     if ($existingId) {
-      return array('status'=>'error', 'message'=>"Quote already exists with an id of $existingId.");
+      
+			// if the query to check whether quote is already in the database fails, pass along the error message. Otherwise, return error that quote already exists.
+			return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"This quote already exists with an id of $existingId."); 
     }
 
     $categoryExists = (new Category())->exists($this->category_id);
@@ -100,87 +134,133 @@
       return array('status'=>'error', 'message'=>'category_id Not Found');
     }
 
+		if ($categoryExists['status'] && $categoryExists['status'] == 'error') {
+			return $categoryExists;
+		}
+
     if (!$authorExists) {
       return array('status'=>'error', 'message'=>'author_id Not Found');
     }
 
-    $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quote, :author_id, :category_id)' ;
+		if ($authorExists['status'] && $authorExists['status'] == 'error') {
+			return $authorExists;
+		}
 
-    $stmt = $this->conn->prepare($query);
+		try {
 
-    $stmt-> bindParam(':quote', $this->quote);
-    $stmt-> bindParam(':author_id', $this->author_id);
-    $stmt-> bindParam(':category_id', $this->category_id);
+			$query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quote, :author_id, :category_id)' ;
 
-    if($stmt->execute()) {
+			$stmt = $this->conn->prepare($query);
 
-      $id = $this->getId();
+			$stmt-> bindParam(':quote', $this->quote);
+			$stmt-> bindParam(':author_id', $this->author_id);
+			$stmt-> bindParam(':category_id', $this->category_id);
 
-      $this->id = $id;
-      $this->quote = htmlspecialchars_decode($this->quote);
+			$stmt->execute();
 
-      return array('status'=>'success');
-    }
+			$id = $this->getId();
 
-    return array('status'=>'error', 'message'=>$stmt->error);
+			$this->id = $id;
+			$this->quote = htmlspecialchars_decode($this->quote);
+
+			$result = array('status'=>'success');
+		} catch (Exception $e) {
+
+			$result = array('status'=>'error', 'message'=>$e->getMessage());
+		}
+
+    return $result;
   }
 
   private function exists($id) {
 
-    $queryResult = $this->read_single($id);
-    $rows = $queryResult->fetchAll();
+		$result = null;
 
-    return count($rows) > 0;
+		try {
+
+			$queryResult = $this->read_single($id);
+			$rows = $queryResult->fetchAll();
+
+			$result = array('status'=>'success', 'result'=>count($rows) > 0);
+
+		} catch (Exception $e) {
+
+			$result = array('status'=>'error', 'message'=>$e->getMessage());
+		}
+
+    return $result;
   }
 
   public function update() {
 
-    if (!$this->exists($this->id)) {
-      return array('status'=>'error', 'message'=>'No Quotes Found');
-    }
+		$result = null;
 
-    $query = 'UPDATE ' . $this->table . ' SET quote = :quote, category_id = :category_id, author_id = :author_id WHERE id = :id';
+		$itemExists = $this->exists($this->id);
 
-    $stmt = $this->conn->prepare($query);
-    $this->quote = htmlspecialchars(strip_tags($this->quote));
-    $this->id = htmlspecialchars(strip_tags($this->id));
+		if ($itemExists['status'] && $itemExists['status'] == 'error') {
 
-    $stmt-> bindParam(':quote', $this->quote);
+			return $itemExists;
 
-    $stmt-> bindParam(':category_id', $this->category_id);
+		} else  if (!$itemExists['result']) {
 
-    $stmt-> bindParam(':author_id', $this->author_id);
+			return array('status'=>'error', 'message'=>'No Quotes Found');
+		}
 
-    $stmt-> bindParam(':id', $this->id);
+		try {
+			$this->quote = htmlspecialchars(strip_tags($this->quote));
+			$this->id = htmlspecialchars(strip_tags($this->id));
 
-    if($stmt->execute()) {
+			$query = 'UPDATE ' . $this->table . ' SET quote = :quote, category_id = :category_id, author_id = :author_id WHERE id = :id';
+			$stmt = $this->conn->prepare($query);
 
-      $this->quote = htmlspecialchars_decode($this->quote);
-      return array('status'=>'success');
-    }
+			$stmt-> bindParam(':quote', $this->quote);
+			$stmt-> bindParam(':category_id', $this->category_id);
+			$stmt-> bindParam(':author_id', $this->author_id);
+			$stmt-> bindParam(':id', $this->id);
 
-    return array('status'=>'error', 'message'=>$stmt->error);
+			$stmt->execute();
+
+			$this->quote = htmlspecialchars_decode($this->quote);
+			$result = array('status'=>'success');
+
+		} catch (Exception $e) {
+
+			$result = array('status'=>'error', 'message'=>$e->getMessage());	
+		}
+    
+    return $result;
   }
 
   public function delete($id) {
 
-    if (!$this->exists($id)) {
-      return array('status'=>'error', 'message'=>'No Quotes Found');
-    }
+		$result = null;
+		$this->id = htmlspecialchars(strip_tags($id));
+		$itemExists = $this->exists($id);
 
-    $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
+		if ($itemExists['status'] && $itemExists['status'] == 'error') {
 
-    $stmt = $this->conn->prepare($query);
+			return $itemExists;
+			
+		} else if (!$itemExists['result']) {
 
-    $this->id = htmlspecialchars(strip_tags($id));
+			return array('status'=>'error', 'message'=>'No Quotes Found');
+		}
 
-    $stmt-> bindParam(':id', $this->id);
+		try {
 
-    if ($stmt->execute()) {
+			$query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
+			$stmt = $this->conn->prepare($query);
+			$stmt-> bindParam(':id', $this->id);
 
-      return array('status'=>'success');
-    }
+			$stmt->execute();
+
+			$result = array('status'=>'success');
+
+		} catch (Exception $e) {
+
+			$result = array('status'=>'error', 'message'=>$e->getMessage());
+		}
     
-    return array('status'=>'error', 'message'=>$stmt->error);
+    return $result;
   }
 }
