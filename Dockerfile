@@ -23,7 +23,7 @@ RUN a2enmod rewrite
 
 # Suprisingly, I deployed to Render without this!
 # Set Apache to bind to IP address 0.0.0.0
-# RUN echo "Listen 0.0.0.0:80" >> /etc/apache2/apache2.conf
+RUN echo "Listen 0.0.0.0:80" >> /etc/apache2/apache2.conf
 
 # Expose port 80 to allow incoming connections to the container
 EXPOSE 80
