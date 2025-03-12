@@ -11,6 +11,8 @@
 
     public function __construct() {
       $this->conn = $GLOBALS['db'];
+			require_once(__DIR__ . '/Category.php');
+			require_once(__DIR__ . '/Author.php');
     }
 
     public function read($filters, $random) {
@@ -57,7 +59,6 @@
     WHERE q.id = ?';
 
     $stmt = $this->conn->prepare($query);
-
     $stmt->bindParam(1, $id);
 
     $stmt->execute();
@@ -141,9 +142,7 @@
     $query = 'UPDATE ' . $this->table . ' SET quote = :quote, category_id = :category_id, author_id = :author_id WHERE id = :id';
 
     $stmt = $this->conn->prepare($query);
-
     $this->quote = htmlspecialchars(strip_tags($this->quote));
-
     $this->id = htmlspecialchars(strip_tags($this->id));
 
     $stmt-> bindParam(':quote', $this->quote);

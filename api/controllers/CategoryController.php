@@ -73,11 +73,13 @@
     }
 
     $category = new Category();
-    $category->name = $categoryName;
+    $category->name = htmlspecialchars(strip_tags($categoryName));
     
     $result = $category->create();
 
-    echo $result['status'] == 'success' ? json_encode($category) : json_encode(array('message'=>$result['message']));
+    $responseBody = $result['status'] == 'success' ? $category : array('message'=>$result['message']);
+
+		echo json_encode($responseBody);
   }
 
   function updateCategory() {
@@ -93,12 +95,14 @@
     }
 
     $category = new Category();
-    $category->name = $categoryName;
-    $category->id = $categoryId;
+    $category->name = htmlspecialchars(strip_tags($categoryName));
+    $category->id = htmlspecialchars(strip_tags($categoryId));
     
     $result = $category->update();
 
-    echo $result['status'] == 'success' ? json_encode($category) : json_encode(array('message' => $result['message']));
+    $responseBody = $result['status'] == 'success' ? $category : array('message' => $result['message']);
+
+		echo json_encode($responseBody);
   }
 
   function deleteCategory() {
@@ -117,7 +121,9 @@
 
     $result = $category->delete($id);
 
-    echo $result['status'] == 'success' ? json_encode($id) : json_encode(array('message'=>$result['message']));
+    $responseBody = $result['status'] == 'success' ? $id : array('message'=>$result['message']);
+
+		echo json_encode($responseBody);
   }
   
 ?>

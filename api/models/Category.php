@@ -12,8 +12,8 @@
     }
 
     public function read() {
-      $query = 'SELECT id, category FROM ' . $this->table . ' ORDER BY id';
 
+      $query = 'SELECT id, category FROM ' . $this->table . ' ORDER BY id';
       $stmt = $this->conn->prepare($query);
 
       $stmt->execute();
@@ -24,9 +24,7 @@
   public function read_single($id) {
 
     $query = 'SELECT id, category FROM ' . $this->table . ' WHERE id = ?';
-
     $stmt = $this->conn->prepare($query);
-
     $stmt->bindParam(1, $id);
 
     $stmt->execute();
@@ -37,9 +35,7 @@
   public function getId($name) {
 
     $query = 'SELECT id FROM ' . $this->table . ' WHERE category = ?';
-
     $stmt = $this->conn->prepare($query);
-
     $stmt->bindParam(1, $name);
 
     $stmt->execute();
@@ -58,11 +54,7 @@
     }
 
     $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
-
     $stmt = $this->conn->prepare($query);
-
-    $this->name = htmlspecialchars(strip_tags($this->name));
-
     $stmt-> bindParam(':name', $this->name);
 
     if($stmt->execute()) {
@@ -85,6 +77,19 @@
     return count($rows) > 0;
   }
 
+	public function isBeingUsedInQuotes ($category_id) {
+
+		$query = 'SELECT * FROM quotes WHERE category_id = :id';
+		$stmt = $this->conn->prepare($query);
+		$stmt->bindParam(':id', $category_id);
+		
+		$stmt->execute();
+		
+		$count = $stmt->rowCount();
+		
+		return $count > 0;
+	}
+
   public function update() {
 
     if (!$this->exists($this->id)) {
@@ -92,15 +97,8 @@
     }
 
     $query = 'UPDATE ' . $this->table . ' SET category = :name WHERE id = :id';
-
     $stmt = $this->conn->prepare($query);
-
-    $this->name = htmlspecialchars(strip_tags($this->name));
-
-    $this->id = htmlspecialchars(strip_tags($this->id));
-
     $stmt-> bindParam(':name', $this->name);
-
     $stmt-> bindParam(':id', $this->id);
 
     if($stmt->execute()) {
@@ -113,16 +111,18 @@
 
   public function delete($id) {
 
+		$this->id = htmlspecialchars(strip_tags($id));
+
     if (!$this->exists($id)) {
       return array('status'=>'error', 'message'=>'category_id Not Found');
     }
 
+		if ($this->isBeingUsedInQuotes($id)) {
+			return array('status'=>'error', 'message'=>'Cannot delete category because it is referenced in another table.');
+		}
+
     $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
-
     $stmt = $this->conn->prepare($query);
-
-    $this->id = htmlspecialchars(strip_tags($id));
-
     $stmt-> bindParam(':id', $this->id);
 
     if ($stmt->execute()) {

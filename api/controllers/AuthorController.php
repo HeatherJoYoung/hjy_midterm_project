@@ -74,7 +74,7 @@
     }
 
     $author = new Author();
-    $author->name = $authorName;
+    $author->name = htmlspecialchars(strip_tags($authorName));
 
     $result = $author->create();
 
@@ -96,8 +96,8 @@
     }
 
     $author = new Author();
-    $author->name = $authorName;
-    $author->id = $authorId;
+    $author->name = htmlspecialchars(strip_tags($authorName));
+    $author->id = htmlspecialchars(strip_tags($authorId));
     
     $result = $author->update();
 
@@ -122,7 +122,7 @@
 
     $result = $author->delete($id);
 
-    $responseBody = $result['status'] == 'success' ? $id : array("message"=>$result['message']);
+    $responseBody = $result['status'] == 'success' ? $id : array('message'=>$result['message']);
 
     echo json_encode($responseBody);
   }
