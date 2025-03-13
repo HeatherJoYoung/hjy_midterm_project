@@ -128,10 +128,10 @@
     }
 
     $findCategory = (new Category())->exists($this->category_id);
-		$categoryExists = $findCategory['status'] && $findCategory['status'] == 'error' ? false : true;
+		$categoryExists = $findCategory['status'] && $findCategory['status'] == 'success' ? $findCategory['result'] : false;
 
     $findAuthor = (new Author())->exists($this->author_id);
-		$authorExists = $findAuthor['status'] && $findAuthor['status'] == 'error' ? false : true;
+		$authorExists = $findAuthor['status'] && $findAuthor['status'] == 'success' ? $findAuthor['result'] : false;
 
     if (!$categoryExists) {
       return array('status'=>'error', 'message'=>'category_id Not Found');
@@ -207,6 +207,28 @@
 		} else  if (!$itemExists['result']) {
 
 			return array('status'=>'error', 'message'=>'No Quotes Found');
+		}
+
+		$findCategory = (new Category())->exists($this->category_id);
+		$categoryExists = $findCategory['status'] && $findCategory['status'] == 'success' ? $findCategory['result'] : false;
+
+    $findAuthor = (new Author())->exists($this->author_id);
+		$authorExists = $findAuthor['status'] && $findAuthor['status'] == 'success' ? $findAuthor['result'] : false;
+
+    if (!$categoryExists) {
+      return array('status'=>'error', 'message'=>'category_id Not Found');
+    }
+
+		if ($categoryExists['status'] && $categoryExists['status'] == 'error') {
+			return $categoryExists;
+		}
+
+    if (!$authorExists) {
+      return array('status'=>'error', 'message'=>'author_id Not Found');
+    }
+
+		if ($authorExists['status'] && $authorExists['status'] == 'error') {
+			return $authorExists;
 		}
 
 		try {
