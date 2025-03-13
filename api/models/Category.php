@@ -193,20 +193,12 @@
 			$entryExists = $this->exists($this->id);
 			$isReferenced = $this->isBeingUsedInQuotes($this->id);
 
-			if ($entryExists['status'] && $entryExists['status'] == 'error') {
-
-				return $entryExists;
-
-			} else if (!$entryExists['result']) {
+			if ($entryExists['status'] && $entryExists['status'] == 'error' || !$entryExists['result']) {
 
 				return array('status'=>'error', 'message'=>'category_id Not Found');
 			}
 
-			if ($isReferenced['status'] && $isReferenced['status'] == 'error') {
-
-				return  $isReferenced;
-
-			} else if ($isReferenced['result'] == true) {
+			if ($isReferenced['status'] && $isReferenced['status'] == 'error' || $isReferenced['result'] == true) {
 
 				return array('status'=>'error', 'message'=>'Cannot delete category because it is referenced in another table.');
 			}

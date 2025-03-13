@@ -189,20 +189,12 @@
 			$itemExists = $this->exists($this->id);
 			$isReferenced = $this->isBeingUsedInQuotes($id);
 
-			if ($itemExists['status'] && $itemExists['status'] == 'error') {
-
-				return $itemExists;
-
-			} else if (!$itemExists['result']) {
+			if ($itemExists['status'] && $itemExists['status'] == 'error' ||!$itemExists['result']) {
 
 				return array('status'=>'error', 'message'=>'author_id Not Found');
 			}
 
-			if ($isReferenced['status'] && $isReferenced['status'] == 'error') {
-
-				return  $isReferenced;
-
-			} else if ($isReferenced['result']) {
+			if ($isReferenced['status'] && $isReferenced['status'] == 'error' ||$isReferenced['result'] == true) {
 
 				return array('status'=>'error', 'message'=>'Cannot delete author because it is referenced in another table.');
 			}

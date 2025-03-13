@@ -137,17 +137,9 @@
       return array('status'=>'error', 'message'=>'category_id Not Found');
     }
 
-		if ($findCategory['status'] && $findCategory['status'] == 'error') {
-			return $findCategory;
-		}
-
     if (!$authorExists) {
       return array('status'=>'error', 'message'=>'author_id Not Found');
     }
-
-		if ($findAuthor['status'] && $findAuthor['status'] == 'error') {
-			return $findAuthor;
-		}
 
 		try {
 
@@ -262,11 +254,7 @@
 		$this->id = htmlspecialchars(strip_tags($id));
 		$itemExists = $this->exists($id);
 
-		if ($itemExists['status'] && $itemExists['status'] == 'error') {
-
-			return $itemExists;
-			
-		} else if (!$itemExists['result']) {
+		if ($itemExists['status'] && $itemExists['status'] == 'error' || !$itemExists['result']) {
 
 			return array('status'=>'error', 'message'=>'No Quotes Found');
 		}

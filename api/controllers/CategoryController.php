@@ -70,8 +70,10 @@
 		$requestBody = json_decode(file_get_contents('php://input'), true);
     $categoryName = $requestBody['category'];
 
+		echo $categoryName;
     if (!$categoryName) {
-      return json_encode(array('message' => 'Missing Required Parameters'));
+      echo json_encode(array('message' => 'Missing Required Parameters'));
+			return;
     }
 
     $category = new Category();
