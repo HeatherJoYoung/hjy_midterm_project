@@ -219,16 +219,16 @@
       return array('status'=>'error', 'message'=>'category_id Not Found');
     }
 
-		if ($categoryExists['status'] && $categoryExists['status'] == 'error') {
-			return $categoryExists;
+		if ($findCategory['status'] && $findCategory['status'] == 'error') {
+			return $findCategory;
 		}
 
     if (!$authorExists) {
       return array('status'=>'error', 'message'=>'author_id Not Found');
     }
 
-		if ($authorExists['status'] && $authorExists['status'] == 'error') {
-			return $authorExists;
+		if ($findAuthor['status'] && $findAuthor['status'] == 'error') {
+			return $findAuthor;
 		}
 
 		try {
