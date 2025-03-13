@@ -14,9 +14,6 @@
 	include_once(__DIR__ . '/../config/Database.php');
   include_once(__DIR__ . '/../models/Quote.php');
 
-	$database = new Database();
-	$db = $database->connect();
-
   switch ($method) {
     case 'GET':
       getQuotes();
@@ -33,7 +30,7 @@
   }
   
   function getQuotes () {
-		GLOBAL $db;
+		
     $queryString = $_SERVER['QUERY_STRING'];
 
     parse_str(html_entity_decode($queryString), $vars);
@@ -50,7 +47,7 @@
       $filters['q.author_id'] = $vars['author_id'];
     }
 
-    $quoteObject = new Quote($db);
+    $quoteObject = new Quote();
 
     $result = $id ? $quoteObject->read_single($id) : $quoteObject->read($filters, $random);
     
@@ -83,7 +80,7 @@
   }
 
   function createQuote() {
-		GLOBAL $db;
+		
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $quote = isset($requestBody['quote']) ? $requestBody['quote'] : '';
     $category_id = isset($requestBody['category_id']) ? $requestBody['category_id'] : '';
@@ -95,7 +92,7 @@
       return;
     }
 
-    $quoteObj = new Quote($db);
+    $quoteObj = new Quote();
     $quoteObj->quote = $quote;
     $quoteObj->author_id = $author_id;
     $quoteObj->category_id = $category_id;
@@ -105,7 +102,7 @@
   }
 
   function updateQuote() {
-		GLOBAL $db;
+		
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $quote = isset($requestBody['quote']) ? $requestBody['quote'] : '';
     $id = isset($requestBody['id']) ? $requestBody['id'] : '';
@@ -118,7 +115,7 @@
       return;
     }
 
-    $quoteObj = new Quote($db);
+    $quoteObj = new Quote();
     $quoteObj->id = $id;
     $quoteObj->quote = $quote;
     $quoteObj->author_id = $author_id;
@@ -130,7 +127,7 @@
   }
 
   function deleteQuote() {
-		GLOBAL $db;
+		
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
     $id = isset($vars['id']) ? $vars['id'] : '';
@@ -141,7 +138,7 @@
       return;
     }
 
-    $quoteObj = new Quote($db);
+    $quoteObj = new Quote();
 
     $result = $quoteObj->delete($id);
 

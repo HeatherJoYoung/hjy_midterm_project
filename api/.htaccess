@@ -4,10 +4,13 @@ RewriteEngine On
 # RewriteRule ^(.+) - [L]
 
 RewriteCond %{REQUEST_URI} authors
-RewriteRule ^(.*)$ controllers/AuthorController.php [L]
+RewriteRule ^(.*)$ index.php [L]
 
 RewriteCond %{REQUEST_URI} categories
-RewriteRule ^(.*)$ controllers/CategoryController.php [L]
+RewriteRule ^(.*)$ index.php [L]
 
 RewriteCond %{REQUEST_URI} quotes
-RewriteRule ^(.*)$ controllers/QuoteController.php [L]
+RewriteRule ^(.*)$ index.php [L]
+
+RewriteCond %{REQUEST_URI} gui
+RewriteRule ^(.*)$ index.php [L]

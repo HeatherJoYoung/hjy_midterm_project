@@ -14,9 +14,6 @@
 	include_once(__DIR__ . '/../config/Database.php');
   include_once(__DIR__ . '/../models/Category.php');
 
-	$database = new Database();
-	$db = $database->connect();
-
   switch ($method) {
     case 'GET':
       getCategories();
@@ -33,13 +30,13 @@
   }
   
   function getCategories () {
-		GLOBAL $db;
+
     $queryString = $_SERVER['QUERY_STRING'];
 
     parse_str(html_entity_decode($queryString), $vars);
 
     $id = isset($vars['id']) ? $vars['id'] : '';
-    $category = new Category($db);
+    $category = new Category();
 
     $result = $id ? $category->read_single($id): $category->read();
     
@@ -69,8 +66,8 @@
   }
 
   function createCategory() {
-		GLOBAL $db;
-    $requestBody = json_decode(file_get_contents('php://input'), true);
+
+		$requestBody = json_decode(file_get_contents('php://input'), true);
     $categoryName = $requestBody['category'];
 
     if (!$categoryName) {
@@ -78,7 +75,7 @@
       return json_encode(array('message' => 'Missing Required Parameters'));
     }
 
-    $category = new Category($db);
+    $category = new Category();
     $category->name = htmlspecialchars(strip_tags($categoryName));
     
     $result = $category->create();
@@ -89,7 +86,7 @@
   }
 
   function updateCategory() {
-		GLOBAL $db;
+		
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $categoryName = $requestBody['category'];
     $categoryId = $requestBody['id'];
@@ -100,7 +97,7 @@
       return;
     }
 
-    $category = new Category($db);
+    $category = new Category();
     $category->name = htmlspecialchars(strip_tags($categoryName));
     $category->id = htmlspecialchars(strip_tags($categoryId));
     
@@ -112,7 +109,7 @@
   }
 
   function deleteCategory() {
-		GLOBAL $db;
+		
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
     $id = isset($vars['id']) ? $vars['id'] : '';
@@ -123,7 +120,7 @@
       return;
     }
 
-    $category = new Category($db);
+    $category = new Category();
 
     $result = $category->delete($id);
 

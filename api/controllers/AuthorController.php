@@ -14,9 +14,6 @@
 	include_once(__DIR__ . '/../config/Database.php');
   include_once(__DIR__ . '/../models/Author.php');
 
-	$database = new Database();
-	$db = $database->connect();
-
   switch ($method) {
     case 'GET':
       getAuthors();
@@ -33,13 +30,12 @@
   }
   
   function getAuthors () {
-		GLOBAL $db;
     $queryString = $_SERVER['QUERY_STRING'];
 
     parse_str(html_entity_decode($queryString), $vars);
 
     $id = isset($vars['id']) ? $vars['id'] : '';
-    $author = new Author($db);
+    $author = new Author();
 
     $result = $id ? $author->read_single($id): $author->read();
     
@@ -69,7 +65,6 @@
   }
 
   function createAuthor() {
-		GLOBAL $db;
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $authorName = $requestBody['author'];
     
@@ -79,7 +74,7 @@
       return;
     }
 
-    $author = new Author($db);
+    $author = new Author();
     $author->name = htmlspecialchars(strip_tags($authorName));
 
     $result = $author->create();
@@ -90,7 +85,6 @@
   }
 
   function updateAuthor() {
-		GLOBAL $db;
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $authorName = $requestBody['author'];
     $authorId = $requestBody['id'];
@@ -101,7 +95,7 @@
       return; 
     }
 
-    $author = new Author($db);
+    $author = new Author();
     $author->name = htmlspecialchars(strip_tags($authorName));
     $author->id = htmlspecialchars(strip_tags($authorId));
     
@@ -113,7 +107,6 @@
   }
 
   function deleteAuthor() {
-		GLOBAL $db;
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
     $id = isset($vars['id']) ? $vars['id'] : '';
@@ -124,7 +117,7 @@
       return;
     }
 
-    $author = new Author($db);
+    $author = new Author();
 
     $result = $author->delete($id);
 
