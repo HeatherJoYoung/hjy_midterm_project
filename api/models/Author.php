@@ -186,10 +186,11 @@
 
 			$result = null;
 			$this->id = htmlspecialchars(strip_tags($id));
-			$itemExists = $this->exists($this->id);
+			$findItem = $this->exists($this->id);
+			$itemExists = $findItem['status'] && $findItem['status'] == 'success' ? $findItem['result'] : false;
 			$isReferenced = $this->isBeingUsedInQuotes($id);
 
-			if ($itemExists['status'] && $itemExists['status'] == 'error' ||!$itemExists['result']) {
+			if (!$itemExists) {
 
 				return array('status'=>'error', 'message'=>'author_id Not Found');
 			}

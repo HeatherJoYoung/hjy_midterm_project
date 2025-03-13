@@ -139,7 +139,9 @@
 
     $result = $quoteObj->delete($id);
 
-    echo $result['status'] == 'success' ? json_encode(array('id'=>$id)) : json_encode(array('message'=>$result['message']));
+    $responseBody =  $result['status'] == 'success' ? array('id'=>$id) : array('message'=>$result['message']);
+
+		echo json_encode($responseBody);
   }
   
 ?>

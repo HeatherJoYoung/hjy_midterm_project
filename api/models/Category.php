@@ -79,13 +79,6 @@
 		public function create() {
 
 			$result = null;
-			$existingId = $this->getId($this->category);
-
-			if ($existingId) {
-
-				// if the query to check whether category is already in the database fails, pass along the error message. Otherwise, return an error message that category already exists.
-				return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"Cateogry $this->category already exists with an id of $existingId."); 
-			}
 
 			try {
 				$query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:category)' ;
@@ -190,10 +183,11 @@
 
 			$result = null;
 			$this->id = htmlspecialchars(strip_tags($id));
-			$entryExists = $this->exists($this->id);
+			$findItem = $this->exists($this->id);
+			$itemExists = $findItem['status'] && $findItem['status'] == 'success' ? $findItem['result'] : false;
 			$isReferenced = $this->isBeingUsedInQuotes($this->id);
 
-			if ($entryExists['status'] && $entryExists['status'] == 'error' || !$entryExists['result']) {
+			if (!$itemExists) {
 
 				return array('status'=>'error', 'message'=>'category_id Not Found');
 			}

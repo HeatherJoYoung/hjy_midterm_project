@@ -119,14 +119,6 @@
     $this->author_id = htmlspecialchars(strip_tags($this->author_id));
     $this->category_id = htmlspecialchars(strip_tags($this->category_id));
 
-    $existingId = $this->getId();
-
-    if ($existingId) {
-      
-			// if the query to check whether quote is already in the database fails, pass along the error message. Otherwise, return error that quote already exists.
-			return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"This quote already exists with an id of $existingId."); 
-    }
-
     $findCategory = (new Category())->exists($this->category_id);
 		$categoryExists = $findCategory['status'] && $findCategory['status'] == 'success' ? $findCategory['result'] : false;
 
@@ -252,9 +244,10 @@
 
 		$result = null;
 		$this->id = htmlspecialchars(strip_tags($id));
-		$itemExists = $this->exists($id);
+		$findItem = $this->exists($id);
+		$itemExists = $findItem['status'] && $findItem['status'] == 'success' ? $findItem['result'] : false;
 
-		if ($itemExists['status'] && $itemExists['status'] == 'error' || !$itemExists['result']) {
+		if (!$itemExists) {
 
 			return array('status'=>'error', 'message'=>'No Quotes Found');
 		}
