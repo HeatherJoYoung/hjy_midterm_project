@@ -206,7 +206,7 @@
 
 				return  $isReferenced;
 
-			} else if ($isReferenced['result']) {
+			} else if ($isReferenced['result'] == true) {
 
 				return array('status'=>'error', 'message'=>'Cannot delete category because it is referenced in another table.');
 			}
