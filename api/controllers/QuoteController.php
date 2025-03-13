@@ -35,7 +35,7 @@
 
     parse_str(html_entity_decode($queryString), $vars);
 
-    $id = isset($vars['id']) ? $vars['id'] : '';
+    $getById = isset($vars['id']) ? $vars['id'] : '';
     $filters = [];
     $random = !empty($vars['random']) ? true : false;
     
@@ -49,7 +49,7 @@
 
     $quoteObject = new Quote();
 
-    $result = $id ? $quoteObject->read_single($id) : $quoteObject->read($filters, $random);
+    $result = $getById ? $quoteObject->read_single($getById) : $quoteObject->read($filters, $random);
     
     $num = $result->rowCount();
 
@@ -71,7 +71,7 @@
         array_push($cat_arr, $cat_item);
       }
 
-      echo $id ? json_encode($cat_arr[0]) : json_encode($cat_arr);
+      echo $getById ? json_encode($cat_arr[0]) : json_encode($cat_arr);
 
     } else {
 

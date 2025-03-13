@@ -35,10 +35,10 @@
 
     parse_str(html_entity_decode($queryString), $vars);
 
-    $id = isset($vars['id']) ? $vars['id'] : '';
+    $getById = isset($vars['id']) ? $vars['id'] : '';
     $category = new Category();
 
-    $result = $id ? $category->read_single($id): $category->read();
+    $result = $getById ? $category->read_single($getById): $category->read();
     
     $num = $result->rowCount();
 
@@ -57,7 +57,7 @@
         array_push($cat_arr, $cat_item);
       }
 
-      echo $id ? json_encode($cat_arr[0]) : json_encode($cat_arr);
+      echo $getById ? json_encode($cat_arr[0]) : json_encode($cat_arr);
 
     } else {
 

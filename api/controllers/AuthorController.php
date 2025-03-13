@@ -34,10 +34,10 @@
 
     parse_str(html_entity_decode($queryString), $vars);
 
-    $id = isset($vars['id']) ? $vars['id'] : '';
+    $getById = isset($vars['id']) ? $vars['id'] : '';
     $author = new Author();
 
-    $result = $id ? $author->read_single($id): $author->read();
+    $result = $getById ? $author->read_single($getById): $author->read();
     
     $num = $result->rowCount();
 
@@ -56,7 +56,7 @@
         array_push($cat_arr, $cat_item);
       }
 
-      echo $id ? json_encode($cat_arr[0]) : json_encode($cat_arr);
+      echo $getById ? json_encode($cat_arr[0]) : json_encode($cat_arr);
 
     } else {
 
@@ -89,7 +89,7 @@
     $authorId = $requestBody['id'];
 
     if (!$authorName || !$authorId) {
-      echo 'Missing Required Parameters';
+      echo json_encode(array('message' => 'Missing Required Parameters'));
       return; 
     }
 
