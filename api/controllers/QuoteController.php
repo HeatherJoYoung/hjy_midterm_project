@@ -71,7 +71,7 @@
         array_push($cat_arr, $cat_item);
       }
 
-      echo json_encode($cat_arr);
+      echo $id ? json_encode($cat_arr[0]) : json_encode($cat_arr);
 
     } else {
 
@@ -87,7 +87,6 @@
     $author_id = isset($requestBody['author_id']) ? $requestBody['author_id'] : '';
 
     if (!$quote || !$category_id || !$author_id) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -110,7 +109,6 @@
     $category_id = isset($requestBody['category_id']) ? $requestBody['category_id'] : '';
 
     if (!$quote || !$id || !$author_id || !$category_id) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -133,7 +131,6 @@
     $id = isset($vars['id']) ? $vars['id'] : '';
 
     if (is_null($id)) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -142,7 +139,7 @@
 
     $result = $quoteObj->delete($id);
 
-    echo $result['status'] == 'success' ? json_encode($id) : json_encode(array('message'=>$result['message']));
+    echo $result['status'] == 'success' ? json_encode(array('id'=>$id)) : json_encode(array('message'=>$result['message']));
   }
   
 ?>

@@ -127,8 +127,11 @@
 			return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"This quote already exists with an id of $existingId."); 
     }
 
-    $categoryExists = (new Category())->exists($this->category_id);
-    $authorExists = (new Author())->exists($this->author_id);
+    $findCategory = (new Category())->exists($this->category_id);
+		$categoryExists = $findCategory['status'] && $findCategory['status'] == 'error' ? false : true;
+
+    $findAuthor = (new Author())->exists($this->author_id);
+		$authorExists = $findAuthor['status'] && $findAuthor['status'] == 'error' ? false : true;
 
     if (!$categoryExists) {
       return array('status'=>'error', 'message'=>'category_id Not Found');

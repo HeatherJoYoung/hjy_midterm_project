@@ -4,7 +4,7 @@ This is a simple PHP REST API built from scratch with no framework. It includes 
 
 ## Project Home Page
 
-[Home Page](www.tbd.com)
+[Home Page](https://hjy-midterm-project.onrender.com/api/)
 
 ## Documentation
 
@@ -14,7 +14,7 @@ If you want to clone this repo and run it locally as is, you need to be using an
 > RewriteCond %{REQUEST_FILENAME}% !-f<br>
 > RewriteRule ^(.*)$ index.php<br>
 
-There are SQL statements available along with CSV files containing sample data in the Database directory, which you can use to set up a database.
+There are SQL statements available along with CSV files containing sample data in the data directory, which you can use to set up a database.
 
 If you are using a Postgres database, you can use the following CLI command to populata a table from a CSV file:
 

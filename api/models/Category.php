@@ -5,7 +5,7 @@
     private $conn;
     private $table = 'categories';
     public $id;
-    public $name;
+    public $category;
 
     public function __construct() {
       $this->conn = $GLOBALS['db'];
@@ -54,7 +54,7 @@
 			return $result;
 		}
 
-		public function getId($name) {
+		public function getId($category) {
 
 			$result = null;
 
@@ -62,7 +62,7 @@
 
 				$query = 'SELECT id FROM ' . $this->table . ' WHERE category = ?';
 				$stmt = $this->conn->prepare($query);
-				$stmt->bindParam(1, $name);
+				$stmt->bindParam(1, $category);
 
 				$stmt->execute();
 
@@ -79,22 +79,22 @@
 		public function create() {
 
 			$result = null;
-			$existingId = $this->getId($this->name);
+			$existingId = $this->getId($this->category);
 
 			if ($existingId) {
 
 				// if the query to check whether category is already in the database fails, pass along the error message. Otherwise, return an error message that category already exists.
-				return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"Cateogry $this->name already exists with an id of $existingId."); 
+				return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"Cateogry $this->category already exists with an id of $existingId."); 
 			}
 
 			try {
-				$query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:name)' ;
+				$query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:category)' ;
 				$stmt = $this->conn->prepare($query);
-				$stmt-> bindParam(':name', $this->name);
+				$stmt-> bindParam(':category', $this->category);
 
 				if($stmt->execute()) {
 
-					$id = $this->getId($this->name);
+					$id = $this->getId($this->category);
 
 					$this->id = $id;
 
@@ -169,9 +169,9 @@
 
 			try {
 
-				$query = 'UPDATE ' . $this->table . ' SET category = :name WHERE id = :id';
+				$query = 'UPDATE ' . $this->table . ' SET category = :category WHERE id = :id';
 				$stmt = $this->conn->prepare($query);
-				$stmt-> bindParam(':name', $this->name);
+				$stmt-> bindParam(':category', $this->category);
 				$stmt-> bindParam(':id', $this->id);
 
 				$stmt->execute();

@@ -8,8 +8,6 @@ if ($_SERVER['HTTP_HOST'] != 'localhost') {
 	$request = '/hjy_midterm_project' . $request;
 }
 
-//echo '$request in Router: ' . $request . '<br>';
-
 switch($request) {
 	case '/hjy_midterm_project/api':
 	case '/hjy_midterm_project/api/':

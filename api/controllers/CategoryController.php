@@ -57,7 +57,7 @@
         array_push($cat_arr, $cat_item);
       }
 
-      echo json_encode($cat_arr);
+      echo $id ? json_encode($cat_arr[0]) : json_encode($cat_arr);
 
     } else {
 
@@ -71,12 +71,11 @@
     $categoryName = $requestBody['category'];
 
     if (!$categoryName) {
-      http_response_code(400);
       return json_encode(array('message' => 'Missing Required Parameters'));
     }
 
     $category = new Category();
-    $category->name = htmlspecialchars(strip_tags($categoryName));
+    $category->category = htmlspecialchars(strip_tags($categoryName));
     
     $result = $category->create();
 
@@ -92,13 +91,12 @@
     $categoryId = $requestBody['id'];
 
     if (is_null($categoryName) || is_null($categoryId)) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
 
     $category = new Category();
-    $category->name = htmlspecialchars(strip_tags($categoryName));
+    $category->category = htmlspecialchars(strip_tags($categoryName));
     $category->id = htmlspecialchars(strip_tags($categoryId));
     
     $result = $category->update();
@@ -115,7 +113,6 @@
     $id = isset($vars['id']) ? $vars['id'] : '';
 
     if (is_null($id)) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -124,7 +121,7 @@
 
     $result = $category->delete($id);
 
-    $responseBody = $result['status'] == 'success' ? $id : array('message'=>$result['message']);
+    $responseBody = $result['status'] == 'success' ? array('id'=>$id) : array('message'=>$result['message']);
 
 		echo json_encode($responseBody);
   }

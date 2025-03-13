@@ -56,7 +56,7 @@
         array_push($cat_arr, $cat_item);
       }
 
-      echo json_encode($cat_arr);
+      echo $id ? json_encode($cat_arr[0]) : json_encode($cat_arr);
 
     } else {
 
@@ -69,13 +69,12 @@
     $authorName = $requestBody['author'];
     
     if (!$authorName) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
 
     $author = new Author();
-    $author->name = htmlspecialchars(strip_tags($authorName));
+    $author->author = htmlspecialchars(strip_tags($authorName));
 
     $result = $author->create();
 
@@ -90,13 +89,12 @@
     $authorId = $requestBody['id'];
 
     if (!$authorName || !$authorId) {
-      http_response_code(400);
       echo 'Missing Required Parameters';
       return; 
     }
 
     $author = new Author();
-    $author->name = htmlspecialchars(strip_tags($authorName));
+    $author->author = htmlspecialchars(strip_tags($authorName));
     $author->id = htmlspecialchars(strip_tags($authorId));
     
     $result = $author->update();
@@ -112,7 +110,6 @@
     $id = isset($vars['id']) ? $vars['id'] : '';
     
     if (!$id) {
-      http_response_code(400);
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -121,7 +118,7 @@
 
     $result = $author->delete($id);
 
-    $responseBody = $result['status'] == 'success' ? $id : array('message'=>$result['message']);
+    $responseBody = $result['status'] == 'success' ? json_encode(array('id'=>$id)) : array('message'=>$result['message']);
 
     echo json_encode($responseBody);
   }

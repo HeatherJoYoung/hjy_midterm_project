@@ -5,7 +5,7 @@
     private $conn;
     private $table = 'authors';
     public $id;
-    public $name;
+    public $author;
 
     public function __construct() {
       $this->conn = $GLOBALS['db'];
@@ -79,23 +79,23 @@
 
 			$result = null;
 
-			$existingId = $this->getId($this->name);
+			$existingId = $this->getId($this->author);
 
 			if ($existingId) {
 
 				// if the query to check whether author is already in the database fails, pass along the error message. Otherwise, return error that author already exists.
-				return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"Author $this->name already exists with an id of $existingId."); 
+				return $existingId['status'] && $existingId['status'] == 'error' ? $existingId : array('status'=>'error', 'message'=>"Author $this->author already exists with an id of $existingId."); 
 			}
 
 			try {
 
-				$query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:name)' ;
+				$query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:author)' ;
 				$stmt = $this->conn->prepare($query);
-				$stmt-> bindParam(':name', $this->name);
+				$stmt-> bindParam(':author', $this->author);
 
 				$stmt->execute();
 
-				$id = $this->getId($this->name);
+				$id = $this->getId($this->author);
 				$this->id = $id;
 
 				$result = array('status'=>'success');
@@ -165,9 +165,9 @@
 			
 			try {
 	
-				$query = 'UPDATE ' . $this->table . ' SET author = :name WHERE id = :id';
+				$query = 'UPDATE ' . $this->table . ' SET author = :author WHERE id = :id';
 				$stmt = $this->conn->prepare($query);
-				$stmt-> bindParam(':name', $this->name);
+				$stmt-> bindParam(':author', $this->author);
 				$stmt-> bindParam(':id', $this->id);
 	
 				$stmt->execute();
