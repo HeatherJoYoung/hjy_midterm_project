@@ -71,7 +71,7 @@ function populateResults(results) {
 
 document.getElementById('submit-button').addEventListener('click', async function() {
 	let params = getParams();
-	await fetch('controllers/QuoteController.php/?' + params, {
+	await fetch('quotes/?' + params, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json'

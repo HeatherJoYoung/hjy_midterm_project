@@ -1,8 +1,5 @@
 RewriteEngine On 
 
-# RewriteCond {REQUEST_URI} -f
-# RewriteRule ^(.+) - [L]
-
 RewriteCond %{REQUEST_URI} authors
 RewriteRule ^(.*)$ index.php [L]
 
@@ -10,7 +7,4 @@ RewriteCond %{REQUEST_URI} categories
 RewriteRule ^(.*)$ index.php [L]
 
 RewriteCond %{REQUEST_URI} quotes
-RewriteRule ^(.*)$ index.php [L]
-
-RewriteCond %{REQUEST_URI} gui
 RewriteRule ^(.*)$ index.php [L]
