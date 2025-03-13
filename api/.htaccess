@@ -1,0 +1,13 @@
+RewriteEngine On 
+
+# RewriteCond {REQUEST_URI} -f
+# RewriteRule ^(.+) - [L]
+
+RewriteCond %{REQUEST_URI} authors
+RewriteRule ^(.*)$ controllers/AuthorController.php [L]
+
+RewriteCond %{REQUEST_URI} categories
+RewriteRule ^(.*)$ controllers/CategoryController.php [L]
+
+RewriteCond %{REQUEST_URI} quotes
+RewriteRule ^(.*)$ controllers/QuoteController.php [L]

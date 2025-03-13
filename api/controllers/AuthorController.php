@@ -3,13 +3,19 @@
   header('Access-Control-Allow-Origin: *');
   header('Content-Type: application/json');
 
+	$method = $_SERVER['REQUEST_METHOD'];
+
   if ($method === 'OPTIONS') {
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
     header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
     exit();
   }
 
+	include_once(__DIR__ . '/../config/Database.php');
   include_once(__DIR__ . '/../models/Author.php');
+
+	$database = new Database();
+	$db = $database->connect();
 
   switch ($method) {
     case 'GET':
@@ -27,13 +33,13 @@
   }
   
   function getAuthors () {
-
+		GLOBAL $db;
     $queryString = $_SERVER['QUERY_STRING'];
 
     parse_str(html_entity_decode($queryString), $vars);
 
     $id = isset($vars['id']) ? $vars['id'] : '';
-    $author = new Author();
+    $author = new Author($db);
 
     $result = $id ? $author->read_single($id): $author->read();
     
@@ -63,7 +69,7 @@
   }
 
   function createAuthor() {
-
+		GLOBAL $db;
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $authorName = $requestBody['author'];
     
@@ -73,7 +79,7 @@
       return;
     }
 
-    $author = new Author();
+    $author = new Author($db);
     $author->name = htmlspecialchars(strip_tags($authorName));
 
     $result = $author->create();
@@ -84,7 +90,7 @@
   }
 
   function updateAuthor() {
-
+		GLOBAL $db;
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $authorName = $requestBody['author'];
     $authorId = $requestBody['id'];
@@ -95,7 +101,7 @@
       return; 
     }
 
-    $author = new Author();
+    $author = new Author($db);
     $author->name = htmlspecialchars(strip_tags($authorName));
     $author->id = htmlspecialchars(strip_tags($authorId));
     
@@ -107,7 +113,7 @@
   }
 
   function deleteAuthor() {
-
+		GLOBAL $db;
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
     $id = isset($vars['id']) ? $vars['id'] : '';
@@ -118,7 +124,7 @@
       return;
     }
 
-    $author = new Author();
+    $author = new Author($db);
 
     $result = $author->delete($id);
 

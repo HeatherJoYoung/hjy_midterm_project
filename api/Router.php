@@ -13,7 +13,7 @@ switch($request) {
 		break;
 	case '/hjy_midterm_project/api':
 	case '/hjy_midterm_project/api/':
-		require __DIR__ . '/home.php';
+		require __DIR__ . '/gui/home.php';
 		break;
 	case '/hjy_midterm_project/api/authors':
 	case '/hjy_midterm_project/api/authors/':

@@ -82,7 +82,7 @@
 		</div>
 	</main>
 	
-  <script type="text/javascript" src="gui/home.js"></script> 
+  <script type="text/javascript" src="./gui/home.js"></script> 
 </body>
 
 </html>

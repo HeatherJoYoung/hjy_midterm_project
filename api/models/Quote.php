@@ -9,8 +9,8 @@
     public $category_id;
     public $author_id;
 
-    public function __construct() {
-      $this->conn = $GLOBALS['db'];
+    public function __construct($db) {
+      $this->conn = $db;
 			require_once(__DIR__ . '/Category.php');
 			require_once(__DIR__ . '/Author.php');
     }

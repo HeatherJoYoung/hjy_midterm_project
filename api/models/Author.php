@@ -7,9 +7,9 @@
     public $id;
     public $name;
 
-    public function __construct() {
+    public function __construct($db) {
 
-      $this->conn = $GLOBALS['db'];
+      $this->conn = $db;
     }
 
     public function read() {

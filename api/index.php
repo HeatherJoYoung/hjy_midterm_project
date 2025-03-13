@@ -1,5 +1,5 @@
 <?php 
-	require_once(__DIR__ . '/api/config/Database.php');
+	require_once(__DIR__ . '/config/Database.php');
 
 	echo 'In index.php at root level!';
 
@@ -11,7 +11,7 @@
 		$status = $db->getAttribute(PDO::ATTR_CONNECTION_STATUS);
 		echo "Database connection status: " . $status;
 
-		// require_once(__DIR__ . '/Router.php');
+		require_once(__DIR__ . '/Router.php');
 
 	} catch (Exception $e) {
 
