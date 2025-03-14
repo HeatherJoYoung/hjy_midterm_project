@@ -118,7 +118,7 @@
 
     $result = $author->delete($id);
 
-    $responseBody = $result['status'] == 'success' ? array('id'=>$id) : array('message'=>$result['message']);
+    $responseBody = $result['status'] == 'success' ? array('id'=>$author->id) : array('message'=>$result['message']);
 
     echo json_encode($responseBody);
   }

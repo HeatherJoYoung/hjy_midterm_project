@@ -243,7 +243,7 @@
   public function delete($id) {
 
 		$result = null;
-		$this->id = htmlspecialchars(strip_tags($id));
+		$this->id = (int) htmlspecialchars(strip_tags($id));
 		$findItem = $this->exists($id);
 		$itemExists = $findItem['status'] && $findItem['status'] == 'success' ? $findItem['result'] : false;
 
