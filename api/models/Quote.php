@@ -116,8 +116,8 @@
 		$result = null;
 
     $this->quote = htmlspecialchars(strip_tags($this->quote));
-    $this->author_id = htmlspecialchars(strip_tags($this->author_id));
-    $this->category_id = htmlspecialchars(strip_tags($this->category_id));
+    $this->author_id = (int) $this->author_id;
+    $this->category_id = (int) $this->category_id;
 
     $findCategory = (new Category())->exists($this->category_id);
 		$categoryExists = $findCategory['status'] && $findCategory['status'] == 'success' ? $findCategory['result'] : false;
@@ -217,7 +217,7 @@
 
 		try {
 			$this->quote = htmlspecialchars(strip_tags($this->quote));
-			$this->id = htmlspecialchars(strip_tags($this->id));
+			$this->id = (int) $this->id;
 
 			$query = 'UPDATE ' . $this->table . ' SET quote = :quote, category_id = :category_id, author_id = :author_id WHERE id = :id';
 			$stmt = $this->conn->prepare($query);
@@ -243,7 +243,7 @@
   public function delete($id) {
 
 		$result = null;
-		$this->id = (int) htmlspecialchars(strip_tags($id));
+		
 		$findItem = $this->exists($id);
 		$itemExists = $findItem['status'] && $findItem['status'] == 'success' ? $findItem['result'] : false;
 
@@ -256,7 +256,7 @@
 
 			$query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 			$stmt = $this->conn->prepare($query);
-			$stmt-> bindParam(':id', $this->id);
+			$stmt-> bindParam(':id', $id);
 
 			$stmt->execute();
 

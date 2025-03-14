@@ -185,8 +185,8 @@
     public function delete($id) {
 
 			$result = null;
-			$this->id = (int) htmlspecialchars(strip_tags($id));
-			$findItem = $this->exists($this->id);
+			
+			$findItem = $this->exists($id);
 			$itemExists = $findItem['status'] && $findItem['status'] == 'success' ? $findItem['result'] : false;
 			$isReferenced = $this->isBeingUsedInQuotes($id);
 
@@ -204,7 +204,7 @@
 
 				$query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 				$stmt = $this->conn->prepare($query);
-				$stmt-> bindParam(':id', $this->id);
+				$stmt-> bindParam(':id', $id);
 
 				$stmt->execute();
 

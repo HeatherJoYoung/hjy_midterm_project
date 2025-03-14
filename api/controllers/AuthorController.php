@@ -34,7 +34,7 @@
 
     parse_str(html_entity_decode($queryString), $vars);
 
-    $getById = isset($vars['id']) ? $vars['id'] : '';
+    $getById = isset($vars['id']) ? (int) $vars['id'] : '';
     $author = new Author();
 
     $result = $getById ? $author->read_single($getById): $author->read();
@@ -95,7 +95,7 @@
 
     $author = new Author();
     $author->author = htmlspecialchars(strip_tags($authorName));
-    $author->id = htmlspecialchars(strip_tags($authorId));
+    $author->id =  (int) $authorId;
     
     $result = $author->update();
 
@@ -107,7 +107,7 @@
   function deleteAuthor() {
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
-    $id = isset($vars['id']) ? $vars['id'] : '';
+    $id = isset($vars['id']) ? (int) $vars['id'] : '';
     
     if (!$id) {
       echo json_encode(array('message' => 'Missing Required Parameters'));
@@ -118,7 +118,7 @@
 
     $result = $author->delete($id);
 
-    $responseBody = $result['status'] == 'success' ? array('id'=>$author->id) : array('message'=>$result['message']);
+    $responseBody = $result['status'] == 'success' ? array('id'=>$id) : array('message'=>$result['message']);
 
     echo json_encode($responseBody);
   }

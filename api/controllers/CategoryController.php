@@ -35,7 +35,7 @@
 
     parse_str(html_entity_decode($queryString), $vars);
 
-    $getById = isset($vars['id']) ? $vars['id'] : '';
+    $getById = isset($vars['id']) ? (int) $vars['id'] : '';
     $category = new Category();
 
     $result = $getById ? $category->read_single($getById): $category->read();
@@ -98,7 +98,7 @@
 
     $category = new Category();
     $category->category = htmlspecialchars(strip_tags($categoryName));
-    $category->id = htmlspecialchars(strip_tags($categoryId));
+    $category->id = (int) $categoryId;
     
     $result = $category->update();
 
@@ -111,9 +111,9 @@
 		
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
-    $id = isset($vars['id']) ? $vars['id'] : '';
+    $id = isset($vars['id']) ? (int) $vars['id'] : '';
 
-    if (is_null($id)) {
+    if (!$id) {
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -122,7 +122,7 @@
 
     $result = $category->delete($id);
 
-    $responseBody = $result['status'] == 'success' ? array('id'=>$category->id) : array('message'=>$result['message']);
+    $responseBody = $result['status'] == 'success' ? array('id'=>$id) : array('message'=>$result['message']);
 
 		echo json_encode($responseBody);
   }

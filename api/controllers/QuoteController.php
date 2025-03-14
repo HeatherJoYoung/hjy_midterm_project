@@ -35,7 +35,7 @@
 
     parse_str(html_entity_decode($queryString), $vars);
 
-    $getById = isset($vars['id']) ? $vars['id'] : '';
+    $getById = isset($vars['id']) ? (int) $vars['id'] : '';
     $filters = [];
     $random = !empty($vars['random']) ? true : false;
     
@@ -104,9 +104,9 @@
 		
     $requestBody = json_decode(file_get_contents('php://input'), true);
     $quote = isset($requestBody['quote']) ? $requestBody['quote'] : '';
-    $id = isset($requestBody['id']) ? $requestBody['id'] : '';
-    $author_id = isset($requestBody['author_id']) ? $requestBody['author_id'] : '';
-    $category_id = isset($requestBody['category_id']) ? $requestBody['category_id'] : '';
+    $id = isset($requestBody['id']) ? (int) $requestBody['id'] : '';
+    $author_id = isset($requestBody['author_id']) ? (int) $requestBody['author_id'] : '';
+    $category_id = isset($requestBody['category_id']) ? (int) $requestBody['category_id'] : '';
 
     if (!$quote || !$id || !$author_id || !$category_id) {
       echo json_encode(array('message' => 'Missing Required Parameters'));
@@ -115,7 +115,7 @@
 
     $quoteObj = new Quote();
     $quoteObj->id = $id;
-    $quoteObj->quote = $quote;
+    $quoteObj->quote = htmlspecialchars(strip_tags($quote));
     $quoteObj->author_id = $author_id;
     $quoteObj->category_id = $category_id;
     
@@ -128,9 +128,9 @@
 		
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str(html_entity_decode($queryString), $vars);
-    $id = isset($vars['id']) ? $vars['id'] : '';
+    $id = isset($vars['id']) ? (int) $vars['id'] : '';
 
-    if (is_null($id)) {
+    if (!$id) {
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
     }
@@ -139,7 +139,7 @@
 
     $result = $quoteObj->delete($id);
 
-    $responseBody =  $result['status'] == 'success' ? array('id'=>$quoteObj->id) : array('message'=>$result['message']);
+    $responseBody =  $result['status'] == 'success' ? array('id'=>$id) : array('message'=>$result['message']);
 
 		echo json_encode($responseBody);
   }
