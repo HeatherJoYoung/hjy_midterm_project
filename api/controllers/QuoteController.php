@@ -125,11 +125,10 @@
   }
 
   function deleteQuote() {
-		
-    $queryString = $_SERVER['QUERY_STRING'];
-    parse_str(html_entity_decode($queryString), $vars);
-    $id = isset($vars['id']) ? (int) $vars['id'] : '';
 
+		$requestBody = json_decode(file_get_contents('php://input'), true);
+    $id = isset($requestBody['id']) ? (int) $requestBody['id'] : '';
+		
     if (!$id) {
       echo json_encode(array('message' => 'Missing Required Parameters'));
       return;
