@@ -4,25 +4,24 @@ $method = $_SERVER['REQUEST_METHOD'];
 $request = strtok($_SERVER['REQUEST_URI'], '?');
 $controllerDirectory = '/controllers/';
 
-if ($_SERVER['HTTP_HOST'] != 'localhost') {
-	$request = '/hjy_midterm_project' . $request;
-}
+// If running locally outside of container, uncomment the next line
+// $request = substr($request, 20);
 
 switch($request) {
-	case '/hjy_midterm_project/api':
-	case '/hjy_midterm_project/api/':
+	case '/api':
+	case '/api/':
 		require __DIR__ . '/gui/home.php';
 		break;
-	case '/hjy_midterm_project/api/authors':
-	case '/hjy_midterm_project/api/authors/':
+	case '/api/authors':
+	case '/api/authors/':
 		require __DIR__ . $controllerDirectory . 'AuthorController.php';
 		break;
-	case '/hjy_midterm_project/api/categories':
-	case '/hjy_midterm_project/api/categories/':
+	case '/api/categories':
+	case '/api/categories/':
 		require __DIR__ . $controllerDirectory . 'CategoryController.php';
 		break;
-	case '/hjy_midterm_project/api/quotes':
-	case '/hjy_midterm_project/api/quotes/':
+	case '/api/quotes':
+	case '/api/quotes/':
 		require __DIR__ . $controllerDirectory . 'QuoteController.php';
 		break;
 	default:
